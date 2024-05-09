@@ -74,7 +74,7 @@ let chartExample1 = {
       ],
       datasets: [
         {
-          label: "Village 1",
+          label: "Line chart",
           fill: true,
           backgroundColor: gradientStroke,
           borderColor: "#1f8ef1",
@@ -113,7 +113,7 @@ let chartExample1 = {
       ],
       datasets: [
         {
-          label: "Xuan Truong village",
+          label: "Line chart",
           fill: true,
           backgroundColor: gradientStroke,
           borderColor: "#1f8ef1",

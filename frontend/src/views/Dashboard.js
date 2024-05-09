@@ -32,23 +32,7 @@ function Dashboard(props) {
                                             className='btn-group-toggle float-right'
                                             data-toggle='buttons'
                                         >
-                                            <Button
-                                                tag='label'
-                                                className={classNames('btn-simple', {
-                                                    active: bigChartData === 'data1',
-                                                })}
-                                                color='info'
-                                                id='0'
-                                                size='sm'
-                                                onClick={() => setBgChartData('data1')}
-                                            >
-                                                <span className='d-none d-sm-block d-md-block d-lg-block d-xl-block'>
-                                                    Village 1
-                                                </span>
-                                                <span className='d-block d-sm-none'>
-                                                    <i className='tim-icons icon-single-02' />
-                                                </span>
-                                            </Button>
+                                            
                                             <Button
                                                 color='info'
                                                 id='1'
@@ -64,23 +48,6 @@ function Dashboard(props) {
                                                 </span>
                                                 <span className='d-block d-sm-none'>
                                                     <i className='tim-icons icon-gift-2' />
-                                                </span>
-                                            </Button>
-                                            <Button
-                                                color='info'
-                                                id='2'
-                                                size='sm'
-                                                tag='label'
-                                                className={classNames('btn-simple', {
-                                                    active: bigChartData === 'data3',
-                                                })}
-                                                onClick={() => setBgChartData('data3')}
-                                            >
-                                                <span className='d-none d-sm-block d-md-block d-lg-block d-xl-block'>
-                                                    Ta Nung village
-                                                </span>
-                                                <span className='d-block d-sm-none'>
-                                                    <i className='tim-icons icon-tap-02' />
                                                 </span>
                                             </Button>
                                         </ButtonGroup>
