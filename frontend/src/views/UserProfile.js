@@ -19,7 +19,6 @@ import {
   CardText,
   FormGroup,
   Form,
-  Input,
   Row,
   Col,
 } from "reactstrap";
@@ -32,125 +31,70 @@ function UserProfile() {
           <Col md="8">
             <Card>
               <CardHeader>
-                <h5 className="title">Edit Profile</h5>
+                <h5 className="title">Group Hùng + Vinh</h5>
               </CardHeader>
               <CardBody>
                 <Form>
                   <Row>
                     <Col className="pr-md-1" md="5">
                       <FormGroup>
-                        <label>Company (disabled)</label>
-                        <Input
-                          defaultValue="Creative Code Inc."
-                          disabled
-                          placeholder="Company"
-                          type="text"
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col className="px-md-1" md="3">
-                      <FormGroup>
-                        <label>Username</label>
-                        <Input
-                          defaultValue="michael23"
-                          placeholder="Username"
-                          type="text"
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col className="pl-md-1" md="4">
-                      <FormGroup>
-                        <label htmlFor="exampleInputEmail1">
-                          Email address
+                        <label>
+                          School: <h3>HCMUTE</h3>
                         </label>
-                        <Input placeholder="mike@email.com" type="email" />
                       </FormGroup>
                     </Col>
+                    <Col className="px-md-1" md="3"></Col>
+                    <Col className="pl-md-1" md="4"></Col>
                   </Row>
                   <Row>
                     <Col className="pr-md-1" md="6">
                       <FormGroup>
-                        <label>First Name</label>
-                        <Input
-                          defaultValue="Mike"
-                          placeholder="Company"
-                          type="text"
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col className="pl-md-1" md="6">
-                      <FormGroup>
-                        <label>Last Name</label>
-                        <Input
-                          defaultValue="Andrew"
-                          placeholder="Last Name"
-                          type="text"
-                        />
+                        <label>Student 1</label>
+                        <h3>Lê Nguyễn Hoàng Vinh</h3>
                       </FormGroup>
                     </Col>
                   </Row>
                   <Row>
                     <Col md="12">
                       <FormGroup>
-                        <label>Address</label>
-                        <Input
-                          defaultValue="Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09"
-                          placeholder="Home Address"
-                          type="text"
-                        />
+                        <label>Student 2</label>
+                        <h3>Lê Nguyễn Hoàng Vinh</h3>
                       </FormGroup>
                     </Col>
                   </Row>
                   <Row>
                     <Col className="pr-md-1" md="4">
-                      <FormGroup>
-                        <label>City</label>
-                        <Input
-                          defaultValue="Mike"
-                          placeholder="City"
-                          type="text"
-                        />
-                      </FormGroup>
+                      <p></p>
+                      <p></p>
+                      <p></p>
+                      <p></p>
                     </Col>
-                    <Col className="px-md-1" md="4">
-                      <FormGroup>
-                        <label>Country</label>
-                        <Input
-                          defaultValue="Andrew"
-                          placeholder="Country"
-                          type="text"
-                        />
-                      </FormGroup>
-                    </Col>
+                    <Col className="px-md-1" md="4"></Col>
                     <Col className="pl-md-1" md="4">
-                      <FormGroup>
-                        <label>Postal Code</label>
-                        <Input placeholder="ZIP Code" type="number" />
-                      </FormGroup>
+                      <p></p>
+                      <p></p>
+                      <p></p>
+                      <p></p>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col className="pl-md-1" md="4">
+                      <p></p>
+                      <p></p>
+                      <p></p>
+                      <p></p>
                     </Col>
                   </Row>
                   <Row>
                     <Col md="8">
                       <FormGroup>
-                        <label>About Me</label>
-                        <Input
-                          cols="80"
-                          defaultValue="Lamborghini Mercy, Your chick she so thirsty, I'm in
-                            that two seat Lambo."
-                          placeholder="Here can be your description"
-                          rows="4"
-                          type="textarea"
-                        />
+                        <p>This is final project</p>
                       </FormGroup>
                     </Col>
                   </Row>
                 </Form>
               </CardBody>
-              <CardFooter>
-                <Button className="btn-fill" color="primary" type="submit">
-                  Save
-                </Button>
-              </CardFooter>
+              <CardFooter></CardFooter>
             </Card>
           </Col>
           <Col md="4">
@@ -168,14 +112,9 @@ function UserProfile() {
                       className="avatar"
                       src={require("assets/img/emilyz.jpg")}
                     />
-                    <h5 className="title">Mike Andrew</h5>
+                    <h4 className="title">Lecturer</h4>
                   </a>
-                  <p className="description">Ceo/Co-Founder</p>
-                </div>
-                <div className="card-description">
-                  Do not be scared of the truth because we need to restart the
-                  human foundation in truth And I love you like Kanye loves
-                  Kanye I love Rick Owens’ bed design but the back is...
+                  <p className="description">Master.NXXXX</p>
                 </div>
               </CardBody>
               <CardFooter>
