@@ -1,0 +1,63 @@
+{
+  "name": "black-dashboard-react",
+  "proxy":"http://http://127.0.0.1",
+  "version": "1.2.2",
+  "private": true,
+  "homepage": "https://demos.creative-tim.com/black-dashboard-react/#/admin/dashboard",
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "6.4.0",
+    "antd": "^5.16.4",
+    "axios": "^1.6.8",
+    "bootstrap": "4.6.2",
+    "chart.js": "3.9.1",
+    "classnames": "2.3.2",
+    "google-map-react": "^2.2.1",
+    "google-maps-react": "^2.0.6",
+    "json-server": "^1.0.0-alpha.23",
+    "perfect-scrollbar": "1.5.5",
+    "prop-types": "15.8.1",
+    "react": ">=16.8.0",
+    "react-chartjs-2": "3.3.0",
+    "react-dom": ">=16.8.0",
+    "react-hook-form": "^7.51.3",
+    "react-notification-alert": "0.0.13",
+    "react-router-dom": "6.11.1",
+    "react-scripts": "5.0.1",
+    "sass": "1.62.1",
+    "styled-components": "^6.1.8"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "start-backend": "cd backend && flask run --no-debugger",
+    "build": "react-scripts build && gulp licenses",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm start",
+    "compile-scss": "sass src/assets/scss/black-dashboard-react.scss src/assets/css/black-dashboard-react.css",
+    "minify-scss": "sass src/assets/scss/black-dashboard-react.scss src/assets/css/black-dashboard-react.min.css --style compressed"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "optionalDependencies": {
+    "eslint-plugin-flowtype": "8.0.3",
+    "reactstrap": "8.10.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "5.0.4"
+  },
+  "overrides": {
+    "svgo": "3.0.2"
+  }
+}
