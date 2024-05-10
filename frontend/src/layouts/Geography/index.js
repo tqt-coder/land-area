@@ -104,14 +104,14 @@ const Geography = () => {
                                                 .includes(input.toLowerCase());
                                         }}
                                     >
-                                        {/* {provinces.map((province) => (
+                                        {provinces.map((province) => (
                                             <Select.Option
-                                                key={province.id}
-                                                value={province.idProvince}
+                                                key={province.code}
+                                                value={province.code}
                                             >
-                                                {province.name}
+                                                {province.full_name}
                                             </Select.Option>
-                                        ))} */}
+                                        ))}
                                     </Select>
                                 )}
                             />
@@ -138,11 +138,11 @@ const Geography = () => {
                                                 .includes(input.toLowerCase());
                                         }}
                                     >
-                                        {/* {cities.map((city) => (
-                                            <Select.Option key={city.id} value={city.idDistrict}>
-                                                {city.name}
+                                        {cities.map((city) => (
+                                            <Select.Option key={city.code} value={city.code}>
+                                                {city.full_name}
                                             </Select.Option>
-                                        ))} */}
+                                        ))}
                                     </Select>
                                 )}
                             ></Controller>
@@ -169,11 +169,11 @@ const Geography = () => {
                                                 .includes(input.toLowerCase());
                                         }}
                                     >
-                                        {/* {wards.map((ward) => (
-                                            <Select.Option key={ward.id} value={ward.idCommune}>
-                                                {ward.name}
+                                        {wards.map((ward) => (
+                                            <Select.Option key={ward.code} value={ward.code}>
+                                                {ward.full_name}
                                             </Select.Option>
-                                        ))} */}
+                                        ))}
                                     </Select>
                                 )}
                             ></Controller>

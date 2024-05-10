@@ -1,6 +1,6 @@
 import axios from "axios";
 
-
+const url = 'http://127.0.0.1:5000'
 const LocationService = {
   /**
    * Get all provinces in Viet Name
@@ -10,7 +10,7 @@ const LocationService = {
     // const { data } = await axios.get("/provinces");
     try {
       // Make a GET request to another API endpoint
-      const response = await axios.get("http://127.0.0.1:5000/provinces");
+      const response = await axios.get(`${url}/provinces`);
       console.log(response);
       return response.data; // Return the data from the response
     } catch (error) {
@@ -18,7 +18,6 @@ const LocationService = {
       console.error("Error calling other API:", error);
       throw error; // Re-throw the error to propagate it to the caller
     }
-
   },
   /**
    *
@@ -26,10 +25,15 @@ const LocationService = {
    * @returns {Promise<{idProvince: string, idDistrict: string, name: string, id: string}[]>}
    */
   getDistrictsOrCities: async (provinceIdOrCityId) => {
-    const { data } = await axios.get(
-      `/district?idProvince=${provinceIdOrCityId}`
-    );
-    return data;
+    try {
+      const response = await axios.get(`${url}/districts?province_code=${provinceIdOrCityId}`);
+      console.log(response);
+      return response.data; // Return the data from the response
+    } catch (error) {
+      // Handle any errors that occur during the API call
+      console.error("Error calling other API:", error);
+      throw error; // Re-throw the error to propagate it to the caller
+    }
   },
 
   /**
@@ -38,10 +42,15 @@ const LocationService = {
    * @returns {Promise<{idDistrict: string, idCommune: string, name: string, id: string}[]>}
    */
   getWardsOrCommunes: async (districtIdOrCommuneId) => {
-    const { data } = await axios.get(
-      `/commune?idDistrict=${districtIdOrCommuneId}`
-    );
-    return data;
+    try {
+      const response = await axios.get(`${url}/wards?district_code=${districtIdOrCommuneId}`);
+      console.log(response);
+      return response.data; // Return the data from the response
+    } catch (error) {
+      // Handle any errors that occur during the API call
+      console.error("Error calling other API:", error);
+      throw error; // Re-throw the error to propagate it to the caller
+    }
   },
 };
 
