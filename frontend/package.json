@@ -1,6 +1,6 @@
 {
   "name": "black-dashboard-react",
-  "proxy":"http://http://127.0.0.1",
+  "proxy":"http://127.0.0.1",
   "version": "1.2.2",
   "private": true,
   "homepage": "https://demos.creative-tim.com/black-dashboard-react/#/admin/dashboard",
