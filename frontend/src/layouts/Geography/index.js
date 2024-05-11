@@ -9,7 +9,7 @@ const Geography = () => {
     const [provinces, setProvinces] = useState([]);
     const [cities, setCities] = useState([]);
     const [wards, setWards] = useState([]);
-    const { control, handleSubmit, setValue, formState } = useForm({
+    const { control, handleSubmit, setValue } = useForm({
         defaultValues: {
             province: null,
             city: null,
@@ -181,34 +181,25 @@ const Geography = () => {
                     </Col>
                     <Col span={6}>
                         <Form.Item className='btn-submit'>
-                            <Button
-                                type='primary'
-                                htmlType='submit'
-                                size='large'
-                                disabled={!formState.isValid}
-                            >
-                                Find
-                            </Button>
+                            <NavLink to='/'>
+                                <Button type='primary' size='large'>
+                                    Inspect Region
+                                </Button>
+                            </NavLink>
                         </Form.Item>
                     </Col>
                 </Row>
             </Form>
             <br />
-            {formState.isSubmitted && (
+            {/* {formState.isSubmitted && (
                 <div className='image'>
-                    <img
-                        alt='Region'
-                        width={'800'}
-                        height={'800'}
-                        src={require(`assets/img/region-${Math.floor(Math.random() * 2) + 1}.jpg`)}
-                    />
                     <NavLink to='/'>
                         <Button type='primary' size='large'>
                             Inspect Region
                         </Button>
                     </NavLink>
                 </div>
-            )}
+            )} */}
         </div>
     );
 };
