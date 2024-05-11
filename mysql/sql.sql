@@ -157,7 +157,7 @@ CREATE TABLE `wards` (
   `code_name` varchar(255) DEFAULT NULL,
   `district_code` varchar(20) DEFAULT NULL,
   `administrative_unit_id` int DEFAULT NULL,
-  `land_image` long blob,
+  `land_image` blob,
   PRIMARY KEY (`code`),
   KEY `idx_wards_district` (`district_code`),
   KEY `idx_wards_unit` (`administrative_unit_id`),
