@@ -107,6 +107,7 @@ def serve_image():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    ward_code = request.form.get('ward_code') 
     if 'file' not in request.files:
         return 'No file part'
     file = request.files['file']
@@ -114,7 +115,7 @@ def upload_file():
         return 'No selected file'
     if file:
         cursor = connection.cursor()
-        cursor.execute("""Update landarea.wards set land_image = (%s)  where code ='00004'""", (file.read(),))
+        cursor.execute("""Update landarea.wards set land_image = (%s) where code = (%s)""", (file.read(),ward_code))
         connection.commit()
         cursor.close()
         return 'File uploaded and saved to database successfully'
