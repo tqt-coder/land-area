@@ -20,8 +20,8 @@ app = Flask(__name__)
 CORS(app)
 
 connection = mysql.connector.connect(
-    # user='root', password='1234', host='mysql-app-container', database='landarea'
-    user='root', password='1234', host='127.0.0.1',port=3333, database='landarea'
+    user='root', password='1234', host='mysql-app-container', database='landarea'
+    # user='root', password='1234', host='127.0.0.1',port=3333, database='landarea'
  )
 print('================>> connected DB')
 
@@ -173,7 +173,7 @@ def sub(image: np.ndarray,x1:int, y1:int, x2:int, y2:int)-> np.ndarray:
     resized_submatrix = np.resize(submatrix,(y1 - y2, x2 - x1))
     return resized_submatrix
 
-mask = np.load('C:\\Users\\tuan\\Downloads\\Backend_Func-20240408T145835Z-001\\FinalProject\\backend\\mask.npy')
+mask = np.load('./mask.npy')
 new_mask = np.rot90(mask, k=1)
 big_images = merge_large_img()
 big_images[new_mask == False] = 0

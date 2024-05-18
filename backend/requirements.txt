@@ -4,3 +4,4 @@ flask-cors
 Pillow
 matplotlib
 numpy
+opencv-python
