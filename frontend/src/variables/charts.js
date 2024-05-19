@@ -64,14 +64,7 @@ let chartExample1 = {
     gradientStroke.addColorStop(0, "rgba(29,140,248,0)"); //blue colors
 
     return {
-      labels: [
-        "Road",
-        "Forest_Land",
-        "Water",
-        "Agriculture",
-        "Building",
-        "Barren",
-      ],
+      labels: ["Forest_Land", "Road", "Water", "Agriculture", "Building", "Barren"],
       datasets: [
         {
           label: "Line chart",
@@ -103,14 +96,7 @@ let chartExample1 = {
     gradientStroke.addColorStop(0, "rgba(29,140,248,0)"); //blue colors
 
     return {
-      labels: [
-        "Road",
-        "Forest_Land",
-        "Water",
-        "Agriculture",
-        "Building",
-        "Barren",
-      ],
+      labels: ["Forest_Land", "Road", "Water", "Agriculture", "Building", "Barren"],
       datasets: [
         {
           label: "Line chart",
@@ -178,7 +164,7 @@ let chartExample1 = {
 // // // used inside src/views/Dashboard.js
 // #########################################
 let chartExample2 = {
-  labels: ["Road", "Forest_Land", "Water", "Agriculture", "Building", "Barren"],
+  labels: ["Forest_Land", "Road", "Water", "Agriculture", "Building", "Barren"],
   datasets: [
     {
       label: "# of Votes",
@@ -218,7 +204,7 @@ let chartExample3 = {
     gradientStroke.addColorStop(0, "rgba(119,52,169,0)"); //purple colors
 
     return {
-      labels: ["Road", "Forest_Land", "Water", "Agriculture", "Building", "Barren"],
+      labels: ["Forest_Land", "Road", "Water", "Agriculture", "Building", "Barren"],
       datasets: [
         {
           label: "Xuan Tho",
@@ -293,7 +279,7 @@ const chartExample4 = {
     gradientStroke.addColorStop(0, "rgba(66,134,121,0)"); //green colors
 
     return {
-      labels: ["Road", "Forest_Land", "Water", "Agriculture", "Building", "Barren"],
+      labels: ["Forest_Land", "Road", "Water", "Agriculture", "Building", "Barren"],
       datasets: [
         {
           label: "Xuan Truong",

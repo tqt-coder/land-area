@@ -14,14 +14,14 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 from calc_area import *
-
+import time
 app = Flask(__name__)
 # Enable CORS with specific options
 CORS(app)
 
 connection = mysql.connector.connect(
-    user='root', password='1234', host='mysql-app-container', database='landarea'
-    # user='root', password='1234', host='127.0.0.1',port=3333, database='landarea'
+    # user='root', password='1234', host='mysql-app-container', database='landarea'
+    user='root', password='1234', host='127.0.0.1',port=3333, database='landarea'
  )
 print('================>> connected DB')
 
@@ -129,16 +129,28 @@ def upload_file():
 
 @app.route('/get_area', methods=['GET'])
 def get_area():
-    params = request.args.to_dict()
+    # params = request.args.to_dict()
+    params = {
+        'x1': 0,
+        'y1': 12000,
+        'x2': 2000,
+        'y2': 10000
+    }
+    # ==========================
+
+    # ==========================
     if params:
-        data = {key: int(value) for key, value in params.items()}
-        img = sub(image=big_images, x1=data['x1'], y1=data['y1'],x2=data['x2'],y2=data['y2'])
-        new_models = sub(image=new_mask, x1=data['x1'], y1=data['y1'],x2=data['x2'],y2=data['y2'])  
+        # calc index village
+        # data = {key: int(value) for key, value in params.items()}
+        # img = sub(image=big_images, x1=data['x1'], y1=data['y1'],x2=data['x2'],y2=data['y2'])
+        # new_models = sub(image=new_mask, x1=data['x1'], y1=data['y1'],x2=data['x2'],y2=data['y2']) 
         
-        area = calculate_area(image=img, mask=new_models)
+        area = calculate_area(image=big_images, mask=new_mask)
         print(area)
-        return jsonify({"img":img.tolist(), 'area': str(area)})
-        # return jsonify(area)
+        # return jsonify({"img":big_images.tolist(), 'area': str(area)})
+        area_fixed = {str(k): v for k, v in area.items()}
+        
+        return jsonify(area_fixed)
     else:
         return "Successfull Start!"
 
@@ -173,10 +185,12 @@ def sub(image: np.ndarray,x1:int, y1:int, x2:int, y2:int)-> np.ndarray:
     resized_submatrix = np.resize(submatrix,(y1 - y2, x2 - x1))
     return resized_submatrix
 
+
+# save DB {0: 0.012241223812319998, 1: 0.05755992986935999, 2: 0.008641309677319998, 3: 0.006303750571999998, 4: 0.010525658539959999, 5: 0.09948914401699999, 6: 0.045936865925719994}
+# rest API => calc folder
 mask = np.load('./mask.npy')
 new_mask = np.rot90(mask, k=1)
 big_images = merge_large_img()
 big_images[new_mask == False] = 0
-
 if __name__ == "__main__":
     app.run(debug=True)

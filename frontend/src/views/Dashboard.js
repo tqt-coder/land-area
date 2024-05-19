@@ -1,21 +1,69 @@
-// UTE
-import React from 'react';
-// nodejs library that concatenates classes
+import React, { useState, useEffect, useMemo } from 'react';
 import classNames from 'classnames';
-// react plugin used to create charts
 import { Bar, Line, Pie } from 'react-chartjs-2';
+import { Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Col, Row, Spinner } from 'reactstrap';
+import DashBoardService from '../services/dashboardService';
+import { chartExample1, chartExample4 } from 'variables/charts.js';
 
-// reactstrap components
-import { Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Col, Row } from 'reactstrap';
+function useChartData() {
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-// core components
-import { chartExample1, chartExample2, chartExample3, chartExample4 } from 'variables/charts.js';
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const result = await DashBoardService.calcArea();
+                setData(result);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
 
-function Dashboard(props) {
-    const [bigChartData, setbigChartData] = React.useState('data1');
-    const setBgChartData = (name) => {
-        setbigChartData(name);
-    };
+    return { data, loading };
+}
+
+function Dashboard() {
+    const [bigChartData, setBigChartData] = useState('data1');
+    const { data, loading } = useChartData();
+
+    const handleBgChartData = (name) => setBigChartData(name);
+
+    const pieChart = useMemo(() => ({
+        labels: ["Forest_Land", "Road", "Water", "Agriculture", "Building", "Barren"],
+        datasets: [{
+            data: data,
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+        }]
+    }), [data]);
+
+    if (loading) {
+        return <Spinner color="primary" />;
+    }
+
+    if (!data.length) {
+        return <div>No data available</div>;
+    }
+
     return (
         <>
             <div className='content'>
@@ -32,7 +80,6 @@ function Dashboard(props) {
                                             className='btn-group-toggle float-right'
                                             data-toggle='buttons'
                                         >
-                                            
                                             <Button
                                                 color='info'
                                                 id='1'
@@ -41,7 +88,7 @@ function Dashboard(props) {
                                                 className={classNames('btn-simple', {
                                                     active: bigChartData === 'data2',
                                                 })}
-                                                onClick={() => setBgChartData('data2')}
+                                                onClick={() => handleBgChartData('data2')}
                                             >
                                                 <span className='d-none d-sm-block d-md-block d-lg-block d-xl-block'>
                                                     Xuan Truong village
@@ -57,7 +104,26 @@ function Dashboard(props) {
                             <CardBody>
                                 <div className='chart-area'>
                                     <Line
-                                        data={chartExample1[bigChartData]}
+                                        data={{
+                                            labels: ["Forest_Land", "Road", "Water", "Agriculture", "Building", "Barren"],
+                                            datasets: [{
+                                                label: "Line chart",
+                                                fill: true,
+                                                backgroundColor: "rgba(29,140,248,0.2)",
+                                                borderColor: "#1f8ef1",
+                                                borderWidth: 2,
+                                                borderDash: [],
+                                                borderDashOffset: 0.0,
+                                                pointBackgroundColor: "#1f8ef1",
+                                                pointBorderColor: "rgba(255,255,255,0)",
+                                                pointHoverBackgroundColor: "#1f8ef1",
+                                                pointBorderWidth: 20,
+                                                pointHoverRadius: 4,
+                                                pointHoverBorderWidth: 15,
+                                                pointRadius: 4,
+                                                data: data,
+                                            }]
+                                        }}
                                         options={chartExample1.options}
                                     />
                                 </div>
@@ -76,7 +142,7 @@ function Dashboard(props) {
                             </CardHeader>
                             <CardBody>
                                 <div className='chart-area'>
-                                    <Pie data={chartExample2} />
+                                    <Pie data={pieChart} />
                                 </div>
                             </CardBody>
                         </Card>
@@ -86,15 +152,36 @@ function Dashboard(props) {
                             <CardHeader>
                                 <h5 className='card-category'>Column Chart</h5>
                                 <CardTitle tag='h3'>
-                                    <i className='tim-icons icon-delivery-fast text-primary' />{' '}
-                                    3,5000 Ha
+                                    <i className='tim-icons icon-delivery-fast text-primary' /> 3,5000 Ha
                                 </CardTitle>
                             </CardHeader>
                             <CardBody>
                                 <div className='chart-area'>
                                     <Bar
-                                        data={chartExample3.data}
-                                        options={chartExample3.options}
+                                        data={{
+                                            labels: ["Forest_Land", "Road", "Water", "Agriculture", "Building", "Barren"],
+                                            datasets: [{
+                                                label: "# of Votes",
+                                                data: data,
+                                                backgroundColor: [
+                                                    "rgba(255, 99, 132, 0.2)",
+                                                    "rgba(54, 162, 235, 0.2)",
+                                                    "rgba(255, 206, 86, 0.2)",
+                                                    "rgba(75, 192, 192, 0.2)",
+                                                    "rgba(153, 102, 255, 0.2)",
+                                                    "rgba(255, 159, 64, 0.2)",
+                                                ],
+                                                borderColor: [
+                                                    "rgba(255, 99, 132, 1)",
+                                                    "rgba(54, 162, 235, 1)",
+                                                    "rgba(255, 206, 86, 1)",
+                                                    "rgba(75, 192, 192, 1)",
+                                                    "rgba(153, 102, 255, 1)",
+                                                    "rgba(255, 159, 64, 1)",
+                                                ],
+                                                borderWidth: 1,
+                                            }]
+                                        }}
                                     />
                                 </div>
                             </CardBody>
@@ -111,7 +198,20 @@ function Dashboard(props) {
                             <CardBody>
                                 <div className='chart-area'>
                                     <Line
-                                        data={chartExample4.data}
+                                        data={{
+                                            labels: ["Forest_Land", "Road", "Water", "Agriculture", "Building", "Barren"],
+                                            datasets: [{
+                                                label: "Xuan Truong",
+                                                fill: true,
+                                                backgroundColor: "rgba(72,72,176,0.1)",
+                                                hoverBackgroundColor: "rgba(72,72,176,0.1)",
+                                                borderColor: "#d048b6",
+                                                borderWidth: 2,
+                                                borderDash: [],
+                                                borderDashOffset: 0.0,
+                                                data: data,
+                                            }]
+                                        }}
                                         options={chartExample4.options}
                                     />
                                 </div>
