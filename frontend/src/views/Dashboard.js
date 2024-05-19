@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 import classNames from 'classnames';
 import { Bar, Line, Pie } from 'react-chartjs-2';
 import { Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Col, Row, Spinner } from 'reactstrap';
@@ -7,12 +7,15 @@ import { chartExample1, chartExample4 } from 'variables/charts.js';
 
 function useChartData() {
     const [data, setData] = useState([]);
+    const [totalArea, setTotalArea] = useState(0);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const result = await DashBoardService.calcArea();
+                const areaSum = result.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+                setTotalArea(Math.round(areaSum * 1000000) / 10000);
                 setData(result);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -23,15 +26,13 @@ function useChartData() {
         fetchData();
     }, []);
 
-    return { data, loading };
+    return { data, totalArea, loading };
 }
 
 function Dashboard() {
     const [bigChartData, setBigChartData] = useState('data1');
-    const { data, loading } = useChartData();
-
+    const { data, totalArea, loading } = useChartData();
     const handleBgChartData = (name) => setBigChartData(name);
-
     const pieChart = useMemo(() => ({
         labels: ["Forest_Land", "Road", "Water", "Agriculture", "Building", "Barren"],
         datasets: [{
@@ -60,7 +61,7 @@ function Dashboard() {
         return <Spinner color="primary" />;
     }
 
-    if (!data.length) {
+    if (!data.length || totalArea === 0) {
         return <div>No data available</div>;
     }
 
@@ -107,7 +108,7 @@ function Dashboard() {
                                         data={{
                                             labels: ["Forest_Land", "Road", "Water", "Agriculture", "Building", "Barren"],
                                             datasets: [{
-                                                label: "Line chart",
+                                                label: totalArea + ' Ha',
                                                 fill: true,
                                                 backgroundColor: "rgba(29,140,248,0.2)",
                                                 borderColor: "#1f8ef1",
@@ -137,7 +138,7 @@ function Dashboard() {
                             <CardHeader>
                                 <h5 className='card-category'>Pie Chart</h5>
                                 <CardTitle tag='h3'>
-                                    <i className='tim-icons icon-bell-55 text-info' /> 2763,215 Ha
+                                    <i className='tim-icons icon-bell-55 text-info' /> {totalArea} Ha
                                 </CardTitle>
                             </CardHeader>
                             <CardBody>
@@ -152,7 +153,7 @@ function Dashboard() {
                             <CardHeader>
                                 <h5 className='card-category'>Column Chart</h5>
                                 <CardTitle tag='h3'>
-                                    <i className='tim-icons icon-delivery-fast text-primary' /> 3,5000 Ha
+                                    <i className='tim-icons icon-delivery-fast text-primary' /> {totalArea} Ha
                                 </CardTitle>
                             </CardHeader>
                             <CardBody>
@@ -161,7 +162,7 @@ function Dashboard() {
                                         data={{
                                             labels: ["Forest_Land", "Road", "Water", "Agriculture", "Building", "Barren"],
                                             datasets: [{
-                                                label: "# of Votes",
+                                                label: totalArea + ' Ha',
                                                 data: data,
                                                 backgroundColor: [
                                                     "rgba(255, 99, 132, 0.2)",
@@ -192,7 +193,7 @@ function Dashboard() {
                             <CardHeader>
                                 <h5 className='card-category'>Line Chart</h5>
                                 <CardTitle tag='h3'>
-                                    <i className='tim-icons icon-send text-success' /> 121,000 Ha
+                                    <i className='tim-icons icon-send text-success' /> {totalArea} Ha
                                 </CardTitle>
                             </CardHeader>
                             <CardBody>
@@ -225,3 +226,4 @@ function Dashboard() {
 }
 
 export default Dashboard;
+
