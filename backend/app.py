@@ -43,6 +43,7 @@ def getAllProvinces():
     
     # Process the data as needed
     print(result)
+    cursor.close()
     return jsonify(result)
 
 @app.route("/districts")
@@ -65,6 +66,7 @@ def getDistrictsByProvinceCode():
     
     # Process the data as needed
     print(result)
+    cursor.close()
     return jsonify(result)
  
 @app.route("/wards")
@@ -72,7 +74,7 @@ def getDistrictsByProvinceCode():
 def getWardsByDistrictCode():
     district_code = request.args.get('district_code')
     print('================>> districtCode ' + district_code)
-    cursor = cursor = connection.cursor()
+    cursor = connection.cursor()
     cursor.execute('SELECT code,name,full_name,district_code FROM landarea.wards where district_code=%s',[district_code])
     rows = cursor.fetchall()
     result = []
@@ -87,72 +89,35 @@ def getWardsByDistrictCode():
     
     # Process the data as needed
     print(result)
+    cursor.close()
     return jsonify(result)
 
-@app.route("/img")
-# /wards?ward_code=x
-def getImageByCode():
-    ward_code = request.args.get('ward_code')
-    print('================>> ward_code: ' + ward_code)
-    cursor = cursor = connection.cursor()
-    cursor.execute('SELECT code, land_image FROM landarea.wards where code=%s',[ward_code])
-    image_data = cursor.fetchone()
-    cursor.close()
-    if image_data:
-        response = send_file(
-                io.BytesIO(image_data[1]),
-                mimetype='image/png'
-            )
-        return response
-    else:
-        return 'Image not found'
-
-# Images 
-@app.route("/upload") 
-def serve_image(): 
-    return render_template('index.html')
-
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    ward_code = request.form.get('ward_code') 
-    if 'file' not in request.files:
-        return 'No file part'
-    file = request.files['file']
-    if file.filename == '':
-        return 'No selected file'
-    if file:
-        cursor = connection.cursor()
-        cursor.execute("""Update landarea.wards set land_image = (%s) where code = (%s)""", (file.read(),ward_code))
-        connection.commit()
-        cursor.close()
-        return 'File uploaded and saved to database successfully'
 
 @app.route('/get_area', methods=['GET'])
 def get_area():
     # params = request.args.to_dict()
+    ward_code = request.args.get('ward_code')
     params = {
         'x1': 0,
         'y1': 12000,
         'x2': 2000,
         'y2': 10000
     }
+    cursor = connection.cursor()
+    cursor.execute('SELECT land_area FROM landarea.wards where code=%s',[ward_code])
+    rows = cursor.fetchall()
+    cursor.close()
+    # ========================== calc area
+    # if params:    
+    #     area = calculate_area(image=big_images, mask=new_mask)
+    #     print(area)
+    #     area_fixed = {str(k): v for k, v in area.items()}
+        
+    #     return jsonify(area_fixed)
     # ==========================
+    return rows
+    
 
-    # ==========================
-    if params:
-        # calc index village
-        # data = {key: int(value) for key, value in params.items()}
-        # img = sub(image=big_images, x1=data['x1'], y1=data['y1'],x2=data['x2'],y2=data['y2'])
-        # new_models = sub(image=new_mask, x1=data['x1'], y1=data['y1'],x2=data['x2'],y2=data['y2']) 
-        
-        area = calculate_area(image=big_images, mask=new_mask)
-        print(area)
-        # return jsonify({"img":big_images.tolist(), 'area': str(area)})
-        area_fixed = {str(k): v for k, v in area.items()}
-        
-        return jsonify(area_fixed)
-    else:
-        return "Successfull Start!"
 
 def merge_large_img():
     folder_path = "./animation"
@@ -186,11 +151,11 @@ def sub(image: np.ndarray,x1:int, y1:int, x2:int, y2:int)-> np.ndarray:
     return resized_submatrix
 
 
-# save DB {0: 0.012241223812319998, 1: 0.05755992986935999, 2: 0.008641309677319998, 3: 0.006303750571999998, 4: 0.010525658539959999, 5: 0.09948914401699999, 6: 0.045936865925719994}
-# rest API => calc folder
-mask = np.load('./mask.npy')
-new_mask = np.rot90(mask, k=1)
-big_images = merge_large_img()
-big_images[new_mask == False] = 0
+ # ========================== calc area
+# mask = np.load('./mask.npy')
+# new_mask = np.rot90(mask, k=1)
+# big_images = merge_large_img()
+# big_images[new_mask == False] = 0
+# ==================
 if __name__ == "__main__":
     app.run(debug=True)

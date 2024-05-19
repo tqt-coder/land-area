@@ -1,7 +1,7 @@
 import { Button, Col, Form, Row, Select } from 'antd';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import LocationService from '../../services/location';
 import './styles.css';
 
@@ -9,6 +9,7 @@ const Geography = () => {
     const [provinces, setProvinces] = useState([]);
     const [cities, setCities] = useState([]);
     const [wards, setWards] = useState([]);
+    const navigate = useNavigate();
     const { control, handleSubmit, setValue } = useForm({
         defaultValues: {
             province: null,
@@ -69,19 +70,20 @@ const Geography = () => {
         }
     };
 
-    const handleFindRegionalPlanning = (formValue) => {
-        console.log('Form Value', formValue);
-    };
-
     useEffect(() => {
         getProvinces();
     }, []);
+
+    const onSubmit = (data) => {
+        const selectedWard = wards.find(ward => ward.code === data.ward);
+        navigate(`/admin/dashboard?ward=${selectedWard.full_name}&wardCode=${selectedWard.code}`);
+    };
 
     return (
         <div className='content'>
             <h1>Find Regional Planning</h1>
             <hr style={{ backgroundColor: '#fff' }} />
-            <Form layout='vertical' onFinish={handleSubmit(handleFindRegionalPlanning)}>
+            <Form layout='vertical' onFinish={handleSubmit(onSubmit)}>
                 <Row gutter={16}>
                     <Col span={6}>
                         <Form.Item label='Province/City'>
@@ -118,7 +120,7 @@ const Geography = () => {
                         </Form.Item>
                     </Col>
                     <Col span={6}>
-                        <Form.Item label='City/Disitrict'>
+                        <Form.Item label='City/District'>
                             <Controller
                                 name='city'
                                 control={control}
@@ -145,7 +147,7 @@ const Geography = () => {
                                         ))}
                                     </Select>
                                 )}
-                            ></Controller>
+                            />
                         </Form.Item>
                     </Col>
                     <Col span={6}>
@@ -176,30 +178,18 @@ const Geography = () => {
                                         ))}
                                     </Select>
                                 )}
-                            ></Controller>
+                            />
                         </Form.Item>
                     </Col>
                     <Col span={6}>
                         <Form.Item className='btn-submit'>
-                            <NavLink to='/'>
-                                <Button type='primary' size='large'>
-                                    Inspect Region
-                                </Button>
-                            </NavLink>
+                            <Button type='primary' size='large' htmlType='submit'>
+                                Inspect Region
+                            </Button>
                         </Form.Item>
                     </Col>
                 </Row>
             </Form>
-            <br />
-            {/* {formState.isSubmitted && (
-                <div className='image'>
-                    <NavLink to='/'>
-                        <Button type='primary' size='large'>
-                            Inspect Region
-                        </Button>
-                    </NavLink>
-                </div>
-            )} */}
         </div>
     );
 };

@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useMemo, useContext } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import classNames from 'classnames';
 import { Bar, Line, Pie } from 'react-chartjs-2';
 import { Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Col, Row, Spinner } from 'reactstrap';
 import DashBoardService from '../services/dashboardService';
 import { chartExample1, chartExample4 } from 'variables/charts.js';
+import { useLocation } from 'react-router-dom';
 
-function useChartData() {
+function useChartData(_code) {
     const [data, setData] = useState([]);
     const [totalArea, setTotalArea] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -13,7 +14,7 @@ function useChartData() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const result = await DashBoardService.calcArea();
+                const result = await DashBoardService.calcArea(_code);
                 const areaSum = result.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
                 setTotalArea(Math.round(areaSum * 1000000) / 10000);
                 setData(result);
@@ -31,8 +32,13 @@ function useChartData() {
 
 function Dashboard() {
     const [bigChartData, setBigChartData] = useState('data1');
-    const { data, totalArea, loading } = useChartData();
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const selectedWard = queryParams.get('ward') || 'Label'; // Default value if not found
+    const wardCode = queryParams.get('wardCode'); // Default value if not found
+    const { data, totalArea, loading } = useChartData(wardCode);
     const handleBgChartData = (name) => setBigChartData(name);
+    
     const pieChart = useMemo(() => ({
         labels: ["Forest_Land", "Road", "Water", "Agriculture", "Building", "Barren"],
         datasets: [{
@@ -92,7 +98,7 @@ function Dashboard() {
                                                 onClick={() => handleBgChartData('data2')}
                                             >
                                                 <span className='d-none d-sm-block d-md-block d-lg-block d-xl-block'>
-                                                    Xuan Truong village
+                                                    {selectedWard}
                                                 </span>
                                                 <span className='d-block d-sm-none'>
                                                     <i className='tim-icons icon-gift-2' />
@@ -108,7 +114,7 @@ function Dashboard() {
                                         data={{
                                             labels: ["Forest_Land", "Road", "Water", "Agriculture", "Building", "Barren"],
                                             datasets: [{
-                                                label: totalArea + ' Ha',
+                                                label: selectedWard,
                                                 fill: true,
                                                 backgroundColor: "rgba(29,140,248,0.2)",
                                                 borderColor: "#1f8ef1",
@@ -162,7 +168,7 @@ function Dashboard() {
                                         data={{
                                             labels: ["Forest_Land", "Road", "Water", "Agriculture", "Building", "Barren"],
                                             datasets: [{
-                                                label: totalArea + ' Ha',
+                                                label: selectedWard,
                                                 data: data,
                                                 backgroundColor: [
                                                     "rgba(255, 99, 132, 0.2)",
@@ -202,7 +208,7 @@ function Dashboard() {
                                         data={{
                                             labels: ["Forest_Land", "Road", "Water", "Agriculture", "Building", "Barren"],
                                             datasets: [{
-                                                label: "Xuan Truong",
+                                                label: selectedWard,
                                                 fill: true,
                                                 backgroundColor: "rgba(72,72,176,0.1)",
                                                 hoverBackgroundColor: "rgba(72,72,176,0.1)",
@@ -226,4 +232,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-
