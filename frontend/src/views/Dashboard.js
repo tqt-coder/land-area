@@ -16,7 +16,7 @@ function useChartData(_code) {
             try {
                 const result = await DashBoardService.calcArea(_code);
                 const areaSum = result.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-                setTotalArea(Math.round(areaSum * 1000000) / 10000);
+                setTotalArea(Math.round(areaSum * 10000) / 10000);
                 setData(result);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -144,7 +144,7 @@ function Dashboard() {
                             <CardHeader>
                                 <h5 className='card-category'>Pie Chart</h5>
                                 <CardTitle tag='h3'>
-                                    <i className='tim-icons icon-bell-55 text-info' /> {totalArea} Ha
+                                    <i className='tim-icons icon-bell-55 text-info' /> {totalArea} Km<sup>2</sup>
                                 </CardTitle>
                             </CardHeader>
                             <CardBody>
@@ -159,7 +159,7 @@ function Dashboard() {
                             <CardHeader>
                                 <h5 className='card-category'>Column Chart</h5>
                                 <CardTitle tag='h3'>
-                                    <i className='tim-icons icon-delivery-fast text-primary' /> {totalArea} Ha
+                                    <i className='tim-icons icon-delivery-fast text-primary' /> {totalArea} Km<sup>2</sup>
                                 </CardTitle>
                             </CardHeader>
                             <CardBody>
@@ -199,7 +199,7 @@ function Dashboard() {
                             <CardHeader>
                                 <h5 className='card-category'>Line Chart</h5>
                                 <CardTitle tag='h3'>
-                                    <i className='tim-icons icon-send text-success' /> {totalArea} Ha
+                                    <i className='tim-icons icon-send text-success' /> {totalArea} Km<sup>2</sup>
                                 </CardTitle>
                             </CardHeader>
                             <CardBody>
