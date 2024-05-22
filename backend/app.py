@@ -19,16 +19,23 @@ app = Flask(__name__)
 # Enable CORS with specific options
 CORS(app)
 
-connection = mysql.connector.connect(
-    # user='root', password='1234', host='mysql-app-container', database='landarea'
-    user='root', password='1234', host='127.0.0.1',port=3333, database='landarea'
- )
-print('================>> connected DB')
+def createConnectDB():
+    connection = None
+    try:
+        connection = mysql.connector.connect(
+        # user='root', password='1234', host='mysql-app-container', database='landarea'
+        user='root', password='1234', host='127.0.0.1',port=3333, database='landarea'
+        )
+        print('================>> connected DB')
+    except Error as e:
+        print(f"The error '{e}' occurred")
+    return connection
 
  
 
 @app.route("/provinces")
 def getAllProvinces():
+    connection = createConnectDB()
     cursor = connection.cursor()
     cursor.execute('SELECT code,name,full_name FROM landarea.provinces;')
     rows = cursor.fetchall()
@@ -51,7 +58,8 @@ def getAllProvinces():
 def getDistrictsByProvinceCode():
     province_code = request.args.get('province_code')
     print('================>> province_code ' + province_code)
-    cursor = cursor = connection.cursor()
+    connection = createConnectDB()
+    cursor = connection.cursor()
     cursor.execute('SELECT code,name,full_name,province_code FROM landarea.districts where province_code=%s',[province_code])
     rows = cursor.fetchall()
     result = []
@@ -74,6 +82,7 @@ def getDistrictsByProvinceCode():
 def getWardsByDistrictCode():
     district_code = request.args.get('district_code')
     print('================>> districtCode ' + district_code)
+    connection = createConnectDB()
     cursor = connection.cursor()
     cursor.execute('SELECT code,name,full_name,district_code FROM landarea.wards where district_code=%s',[district_code])
     rows = cursor.fetchall()
@@ -103,6 +112,7 @@ def get_area():
         'x2': 2000,
         'y2': 10000
     }
+    connection = createConnectDB()
     cursor = connection.cursor()
     cursor.execute('SELECT land_area FROM landarea.wards where code=%s',[ward_code])
     rows = cursor.fetchall()
@@ -110,9 +120,8 @@ def get_area():
     # ========================== calc area
     # if params:    
     #     area = calculate_area(image=big_images, mask=new_mask)
-    #     print(area)
     #     area_fixed = {str(k): v for k, v in area.items()}
-        
+    #     print(area_fixed)
     #     return jsonify(area_fixed)
     # ==========================
     return rows
