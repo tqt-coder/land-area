@@ -1,11 +1,10 @@
 
 # Store this code in 'app.py' file
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_file
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_file,flash
 # from flask_mysqldb import MySQL
 import mysql.connector
 import re
 from flask_cors import CORS
-import os
 import io  # Import the 'io' module
 
 import json
@@ -15,7 +14,20 @@ import matplotlib.pyplot as plt
 
 from calc_area import *
 import time
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
+import os
+
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your-secret-key'
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'tranquoctuan3112001@gmail.com'
+app.config['MAIL_PASSWORD'] = 'lssx inbu qnuh crmi'  # App-specific password
+
+mail = Mail(app)
+s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 # Enable CORS with specific options
 CORS(app)
 
@@ -31,6 +43,36 @@ def createConnectDB():
         print(f"The error '{e}' occurred")
     return connection
 
+@app.route('/forgot', methods=['GET', 'POST'])
+def forgot():
+    if request.method == 'POST':
+        email = request.form['email']
+        token = s.dumps(email, salt='email-confirm')
+
+        msg = Message('Password Reset Request', sender='your-email@gmail.com', recipients=[email])
+        link = url_for('reset_with_token', token=token, _external=True)
+        msg.body = f'Your password reset link is {link}'
+        mail.send(msg)
+
+        flash('An email with a password reset link has been sent.', 'info')
+        return 'Check email'
+
+    return render_template('forgot.html')
+
+@app.route('/reset/<token>', methods=['GET', 'POST'])
+def reset_with_token(token):
+    try:
+        email = s.loads(token, salt='email-confirm', max_age=3600)
+    except SignatureExpired:
+        return '<h1>The token is expired!</h1>'
+
+    if request.method == 'POST':
+        new_password = request.form['password']
+        # Update the user's password in the database here
+        flash('Your password has been updated!', 'success')
+        return 'success'
+
+    return render_template('reset_with_token.html')
  
 
 @app.route("/provinces")
@@ -167,4 +209,4 @@ def sub(image: np.ndarray,x1:int, y1:int, x2:int, y2:int)-> np.ndarray:
 # big_images[new_mask == False] = 0
 # ==================
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
