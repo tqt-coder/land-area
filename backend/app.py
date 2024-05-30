@@ -1,4 +1,3 @@
-
 # Store this code in 'app.py' file
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_file,flash
 # from flask_mysqldb import MySQL
@@ -39,7 +38,7 @@ def createConnectDB():
         user='root', password='1234', host='127.0.0.1',port=3333, database='landarea'
         )
         print('================>> connected DB')
-    except Error as e:
+    except Exception as e:
         print(f"The error '{e}' occurred")
     return connection
 
@@ -167,7 +166,10 @@ def get_area():
     #     return jsonify(area_fixed)
     # ==========================
     return rows
-    
+
+@app.route('/', methods=['GET'])
+def homepage():
+    return render_template('form.html')
 
 
 def merge_large_img():
@@ -208,5 +210,27 @@ def sub(image: np.ndarray,x1:int, y1:int, x2:int, y2:int)-> np.ndarray:
 # big_images = merge_large_img()
 # big_images[new_mask == False] = 0
 # ==================
+users = {'t@gmail.com': '1234'}
+
+@app.route('/login', methods=['POST'])
+def login():
+    email = request.form['email']
+    password = request.form['password']
+    if email in users and users[email] == password:
+        session['email'] = email
+        print('Login successful')
+        return redirect(f'http://localhost:3000/admin/map')
+    return redirect('/')
+
+@app.route('/register', methods=['POST'])
+def register():
+    username = request.form['username']
+    email = request.form['email']
+    password = request.form['password']
+    if email not in users:
+        users[email] = password
+        session['email'] = email
+        return redirect('/')
+    return jsonify({'message': 'Email already exists'})
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
