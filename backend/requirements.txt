@@ -6,3 +6,4 @@ matplotlib
 numpy
 opencv-python
 secure-smtplib
+bcrypt

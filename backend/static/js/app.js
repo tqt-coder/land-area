@@ -9,3 +9,13 @@ sign_up_btn.addEventListener('click', () =>{
 sign_in_btn.addEventListener('click', () =>{
     container.classList.remove("sign-up-mode");
 });
+setTimeout(function() {
+    const flashMessages = document.getElementById('flash-messages');
+    if (flashMessages) {
+        flashMessages.style.transition = 'opacity 0.5s ease-out';
+        flashMessages.style.opacity = '0';
+        setTimeout(function() {
+            flashMessages.remove();
+        }, 500);
+    }
+}, 2000);

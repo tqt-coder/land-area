@@ -1,14 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Reset Password</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgot Password</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h2>Reset Password</h2>
-    <form method="POST">
-        <label for="password">Enter your new password:</label>
-        <input type="password" name="password" id="password" required>
-        <button type="submit">Reset Password</button>
-    </form>
+    <div class="container">
+        <div class="forms-container">
+            <!-- {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div id="flash-messages">
+                {% for message in messages %}
+                <div class="alert">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %} -->
+            <div class="signin-signup">
+                <form class="sign-in-form" method="POST">
+                    <h4>Please input new password</h4>
+                    <p></p>
+                    <div class="input-field">
+                        <i class="fas fa-envelope"></i>
+                        <input type="password" placeholder="New Password" name="password" required>
+                    </div>
+                    <input type="submit" value="Reset Password" class="btn solid">
+                </form>
+            </div>
+        </div>
+        <div class="panels-container">
+            <div class="panel left-panel">
+                <img src="{{ url_for('static', filename='assets/img/log.svg') }}" class="image" alt="">
+            </div>
+            
+        </div>
+    </div>
 </body>
 </html>
+

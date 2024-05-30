@@ -16,6 +16,7 @@ import time
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 import os
+import bcrypt
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'
@@ -54,12 +55,15 @@ def forgot():
         mail.send(msg)
 
         flash('An email with a password reset link has been sent.', 'info')
-        return 'Check email'
+        return redirect('/')
 
     return render_template('forgot.html')
 
 @app.route('/reset/<token>', methods=['GET', 'POST'])
 def reset_with_token(token):
+    connection = createConnectDB()
+    cursor = connection.cursor()
+
     try:
         email = s.loads(token, salt='email-confirm', max_age=3600)
     except SignatureExpired:
@@ -67,9 +71,19 @@ def reset_with_token(token):
 
     if request.method == 'POST':
         new_password = request.form['password']
-        # Update the user's password in the database here
-        flash('Your password has been updated!', 'success')
-        return 'success'
+
+        try:
+            hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+            cursor.execute('UPDATE users SET password = %s WHERE email = %s', (hashed_password, email))
+            connection.commit()
+            flash('Your password has been updated!', 'success')
+            return redirect('/')
+        except Exception as e:
+            flash(f'Error updating password: {e}', 'error')
+            return redirect('/')
+        finally:
+            cursor.close()
+            connection.close()
 
     return render_template('reset_with_token.html')
  
@@ -210,27 +224,58 @@ def sub(image: np.ndarray,x1:int, y1:int, x2:int, y2:int)-> np.ndarray:
 # big_images = merge_large_img()
 # big_images[new_mask == False] = 0
 # ==================
-users = {'t@gmail.com': '1234'}
-
 @app.route('/login', methods=['POST'])
 def login():
     email = request.form['email']
     password = request.form['password']
-    if email in users and users[email] == password:
-        session['email'] = email
-        print('Login successful')
-        return redirect(f'http://localhost:3000/admin/map')
-    return redirect('/')
+    
+    connection = createConnectDB()
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
+        user = cursor.fetchone()
+        if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+            session['email'] = email
+            print('Login successful')
+            return redirect(f'http://localhost:3000/admin/map')
+        else:
+            flash('Invalid email or password','error')
+            return redirect('/')
+    except Exception as e:
+        flash(f'Error logging in: {e}', 'error')
+        return redirect('/')
+    finally:
+        cursor.close()
+        connection.close()
 
 @app.route('/register', methods=['POST'])
 def register():
     username = request.form['username']
     email = request.form['email']
     password = request.form['password']
-    if email not in users:
-        users[email] = password
-        session['email'] = email
+    
+    connection = createConnectDB()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
+        existing_user = cursor.fetchone()
+        if existing_user:
+            flash('Email already exists','error')
+            return redirect('/')
+        else:
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            cursor.execute('INSERT INTO users (username, email, password) VALUES (%s, %s, %s)', (username, email, hashed_password))
+            connection.commit()
+            session['email'] = email
+            return redirect('/')
+    except Exception as e:
+        flash(f'Error registering user: {e}', 'error')
         return redirect('/')
-    return jsonify({'message': 'Email already exists'})
+    finally:
+        cursor.close()
+        connection.close()
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
