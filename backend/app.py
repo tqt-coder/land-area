@@ -87,7 +87,7 @@ def login_required(f):
 @app.route('/forgot', methods=['GET', 'POST'])
 def forgot():
     if request.method == 'POST':
-        email = request.form['email']
+        email = request.json['email']
         token = s.dumps(email, salt='email-confirm')
 
         msg = Message('Password Reset Request', sender='your-email@gmail.com', recipients=[email])
@@ -118,7 +118,7 @@ def reset_with_token(token):
             cursor.execute('UPDATE users SET password = %s WHERE email = %s', (hashed_password, email))
             connection.commit()
             print('Your password has been updated!', 'success')
-            return jsonify({'status': 401, 'message': 'Your password has been updated!','type': 'success'})
+            return redirect('http://127.0.0.1:3000/login')
         except Exception as e:
             print(f'Error updating password: {e}', 'error')
             return jsonify({'status': 500, 'message': 'Internal Server Error','type': 'error'})

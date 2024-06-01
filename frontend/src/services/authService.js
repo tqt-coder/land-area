@@ -36,4 +36,20 @@ const register = async (email, password, username) => {
   }
 };
 
-export { login, register };
+const forgotPassword = async (email) => {
+    try {
+      // Make a POST request to your login endpoint with email and password
+      const response = await axios.post(`${url}/forgot`, {
+        email
+      });
+      // Assuming the response contains a token or user data, you can access it like this:
+      const rsq = response.data;
+      // Return any relevant data from the response
+      return rsq;
+    } catch (error) {
+      console.error("Error forgotPassword :", error);
+      throw error; // Re-throw the error to propagate it to the caller
+    }
+  };
+
+export { login, register, forgotPassword };

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { login, register } from "../services/authService"; // Assuming you have a register service
 import { Helmet } from 'react-helmet';
 import "../assets/demo/login.css";
@@ -47,7 +47,7 @@ const Login = () => {
       try {
         const response = await login(email, password);
         if (response.status === 200) {
-          navigate("/dashboard"); // Redirect after successful login
+          navigate("/admin/map"); // Redirect after successful login
         } else {
           if (response.status === 403) {
             setError(response.message || "Please login");
@@ -130,9 +130,10 @@ const Login = () => {
                 className="btn solid"
               />
               {!isSignUpMode && (
-                <a href="{{ url_for('forgot') }}" className="forgot-password-link">
-                  Forgot Password?
-                </a>
+                // <a href="{{ url_for('forgot') }}" className="forgot-password-link">
+                //   Forgot Password?
+                // </a>
+                 <Link to="/admin/forgot" className="forgot-password-link">Forgot Password?</Link>
               )}
               <p className="social-text">Or Sign in with social platforms</p>
               <div className="social-media">

@@ -44,18 +44,6 @@
   background-color: #f2dede;
   border-color: #ebccd1;
 }
-/* .alert {
-    color: red;
-    font-size: 1.2em;
-    margin-bottom: 1em;
-    border: 1px solid red;
-    padding: 0.5em;
-    border-radius: 5px;
-    width: 500px;
-    background-color: #f8d7da;
-    float: right;
-    margin: 50px -10px;
-} */
 
 .hidden {
   opacity: 0;
@@ -68,10 +56,10 @@ input {
 
 .container {
   position: relative;
-  width: 100%;
   background-color: #fff;
   min-height: 100vh;
   overflow: hidden;
+  max-width: 100vw !important;
 }
 
 .forms-container {
@@ -160,6 +148,7 @@ form.sign-in-form {
 .social-text {
   padding: 0.7rem 0;
   font-size: 1rem;
+  color: #000;
 }
 
 .social-media {
@@ -275,7 +264,6 @@ form.sign-in-form {
   margin: 0;
   background: none;
   border: 2px solid #fff;
-  width: 130px;
   height: 41px;
   font-weight: 600;
   font-size: 0.8rem;
