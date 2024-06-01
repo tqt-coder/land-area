@@ -29,7 +29,7 @@ var routes = [
         layout: '/admin',
     },
     // {
-    //     path: '/notifications',
+    //     path: '/login',
     //     name: 'Notifications',
     //     rtlName: 'إخطارات',
     //     icon: 'tim-icons icon-bell-55',

@@ -19,3 +19,28 @@ setTimeout(function() {
         }, 500);
     }
 }, 2000);
+
+document.getElementById('login-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    let res = {
+        'email': email,
+        'password': password
+    }
+    const response = await fetch('/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(res)
+    });
+
+    const data = await response.json();
+    if (data.status === 200) {
+        localStorage.setItem('token', data.token);
+        window.location.href = 'http://localhost:3000/admin/map'; // Adjust the URL as needed
+    } else {
+        alert(data.message);
+    }
+});

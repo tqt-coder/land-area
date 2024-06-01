@@ -1,25 +1,21 @@
-// UTE
 import React from "react";
-import ReactDOM from "react-dom/client";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import ReactDOM from "react-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import AdminLayout from "layouts/Admin/Admin.js";
+import Login from './views/login'; // Ensure the correct path to your Login component
 
-import "assets/scss/black-dashboard-react.scss";
-import "assets/demo/demo.css";
-import "assets/css/nucleo-icons.css";
-import "@fortawesome/fontawesome-free/css/all.min.css";
+
 
 import ThemeContextWrapper from "./components/ThemeWrapper/ThemeWrapper";
 import BackgroundColorWrapper from "./components/BackgroundColorWrapper/BackgroundColorWrapper";
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-
-root.render(
+ReactDOM.render(
   <ThemeContextWrapper>
     <BackgroundColorWrapper>
       <BrowserRouter>
         <Routes>
+          <Route path="/admin/login" element={<Login />} />
           <Route path="/admin/*" element={<AdminLayout />} />
           <Route
             path="*"
@@ -28,5 +24,6 @@ root.render(
         </Routes>
       </BrowserRouter>
     </BackgroundColorWrapper>
-  </ThemeContextWrapper>
+  </ThemeContextWrapper>,
+  document.getElementById("root")
 );

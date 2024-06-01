@@ -13,7 +13,10 @@ import routes from "routes.js";
 
 import logo from "assets/img/react-logo.png";
 import { BackgroundColorContext } from "contexts/BackgroundColorContext";
-
+// import "assets/scss/black-dashboard-react.scss";
+// import "assets/demo/demo.css";
+// import "assets/css/nucleo-icons.css";
+// import "@fortawesome/fontawesome-free/css/all.min.css";
 var ps;
 
 function Admin(props) {
