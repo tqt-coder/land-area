@@ -130,21 +130,25 @@ def get_area():
     response.headers.add('Access-Control-Allow-Credentials', 'true')
     return response
 
-@app.route('/forgot', methods=['GET', 'POST'])
+@app.route('/forgot', methods=['POST'])
 def forgot():
-    if request.method == 'POST':
-        email = request.json['email']
+    email = request.json.get('email')
+
+    if email:
         token = s.dumps(email, salt='email-confirm')
 
         msg = Message('Password Reset Request', sender='your-email@gmail.com', recipients=[email])
+
+        # HTML formatted email content with a clickable link
         link = url_for('reset_with_token', token=token, _external=True)
-        msg.body = f'Your password reset link is {link}'
+        msg.html = render_template('reset_email.html', name=email, link=link)
+
         mail.send(msg)
 
         print('An email with a password reset link has been sent.', 'info')
         return jsonify({'status': 200, 'message': 'An email with a password reset link has been sent.','type': 'info'})
-
-    return render_template('forgot.html')
+    else:
+        return jsonify({'status': 400, 'message': 'Email address not provided.', 'type': 'error'})
 
 @app.route('/reset/<token>', methods=['GET', 'POST'])
 def reset_with_token(token):
@@ -244,7 +248,7 @@ def logout():
 
 @app.route('/', methods=['GET'])
 def homepage():
-    return render_template('form.html')
+    return render_template('reset_email.html')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
