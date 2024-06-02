@@ -20,7 +20,7 @@ const Geography = () => {
 
     const getProvinces = async () => {
         try {
-            const provinces = await LocationService.getProvincesOrCities();
+            const provinces = await LocationService.getProvincesOrCities(navigate);
             setProvinces(provinces);
         } catch (error) {
             alert(error.message);
@@ -29,7 +29,7 @@ const Geography = () => {
 
     const getCities = async (provinceId) => {
         try {
-            const cities = await LocationService.getDistrictsOrCities(provinceId);
+            const cities = await LocationService.getDistrictsOrCities(provinceId, navigate);
             setCities(cities);
         } catch (error) {
             alert(error.message);
@@ -38,7 +38,7 @@ const Geography = () => {
 
     const getWards = async (cityId) => {
         try {
-            const wards = await LocationService.getWardsOrCommunes(cityId);
+            const wards = await LocationService.getWardsOrCommunes(cityId, navigate);
             setWards(wards);
         } catch (error) {
             alert(error.message);

@@ -3,10 +3,12 @@ import classNames from 'classnames';
 import { Bar, Line, Pie } from 'react-chartjs-2';
 import { Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Col, Row, Spinner } from 'reactstrap';
 import DashBoardService from '../services/dashboardService';
+import { useNavigate } from 'react-router-dom';
 import { chartExample1, chartExample4 } from 'variables/charts.js';
 import { useLocation } from 'react-router-dom';
 
 function useChartData(_code) {
+    const navigate = useNavigate();
     const [data, setData] = useState([]);
     const [totalArea, setTotalArea] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -14,7 +16,7 @@ function useChartData(_code) {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const result = await DashBoardService.calcArea(_code);
+                const result = await DashBoardService.calcArea(_code, navigate);
                 let areaSum;
                 if(result){
                     areaSum = result.reduce((accumulator, currentValue) => accumulator + currentValue, 0);

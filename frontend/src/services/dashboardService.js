@@ -1,5 +1,6 @@
 import axios from "axios";
 import Cookies from 'js-cookie';
+
 //REACT_APP_{varname}, process.env.{var_name}
 const baseURL = 'http://127.0.0.1:5000'
 const instance = axios.create({
@@ -20,14 +21,16 @@ instance.interceptors.request.use(config => {
 }, error => {
   return Promise.reject(error);
 });
+
 const DashBoardService = {
-  /**
-   * calc area from BE
-   * 
-   */
-  calcArea: async (__code) => {
+  calcArea: async (__code, navigate) => {
     try {
+      
       const response = await instance.get(`${baseURL}/get_area?ward_code=${__code}`);
+      if(response.status !== 200){
+        alert("Please login");
+        navigate("/login"); 
+      }
       let xData = JSON.parse(response.data[0][0]);
       console.log(xData)
       let arr;
