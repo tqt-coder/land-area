@@ -93,7 +93,7 @@ const Login = () => {
           <div className="signin-signup">
             <form
               id={isSignUpMode ? "register-form" : "login-form"}
-              className={`${isSignUpMode ? "sign-up-form" : "sign-in-form"}`}
+              className={`${isSignUpMode ? "sign-up-form" : "sign-in-form"} form-css`}
               onSubmit={handleSubmit}
             >
               <h2 className="title">{isSignUpMode ? "Sign Up" : "Sign In"}</h2>

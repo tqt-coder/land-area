@@ -18,6 +18,7 @@ const ForgotPassword = () => {
       setCategory(response.type || "error");
       setError(response.message || "Something went wrong!!");
       if (response.status === 200) {
+        alert(response.message)
         navigate('/admin/login');
       }
       setTimeout(() => {
@@ -44,7 +45,7 @@ const ForgotPassword = () => {
     <div className="container">
       <div className="forms-container">
         <div className="signin-signup">
-          <form onSubmit={handleSubmit} className="sign-in-form">
+          <form onSubmit={handleSubmit} className="sign-in-form form-css">
             <h4 className="title">Please input your email</h4>
             <div className="input-field">
               <i className="fas fa-envelope"></i>
@@ -57,7 +58,7 @@ const ForgotPassword = () => {
       <div className="panels-container">
         <div className="panel left-panel">
           <div className="content">
-            <form action="/admin/login" method="get" className="sign-in-form">
+            <form action="/admin/login" method="get" className="sign-in-form form-css">
               <input type="submit" value="Sign In" className="btn solid" />
             </form>
           </div>
