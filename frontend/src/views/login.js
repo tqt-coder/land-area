@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login, register } from "../services/authService"; // Assuming you have a register service
 import { Helmet } from 'react-helmet';
+import Cookies from 'js-cookie';
+
 import "../assets/demo/login.css";
 
 const Login = () => {
@@ -47,7 +49,10 @@ const Login = () => {
       try {
         const response = await login(email, password);
         if (response.status === 200) {
-          navigate("/admin/map"); // Redirect after successful login
+          // Save the token cookie in the browser
+          const token = response.token;
+          Cookies.set('token', token, { expires: 1 }); // Set cookie to expire in 1 day
+          navigate("/admin/map");
         } else {
           if (response.status === 403) {
             setError(response.message || "Please login");
@@ -56,7 +61,7 @@ const Login = () => {
             setCategory(response.type || "error")
             setError(response.message || "Invalid email or password");
           }
-          // Clear error message after 10 seconds
+          // Clear error message after 2 seconds
           setTimeout(() => {
             setError("");
           }, 2000);
@@ -64,7 +69,7 @@ const Login = () => {
       } catch (error) {
         setError("Internal Server Error");
         setCategory("error")
-        // Clear error message after 10 seconds
+        // Clear error message after 1 second
         setTimeout(() => {
           setError("");
         }, 1000);
@@ -130,10 +135,7 @@ const Login = () => {
                 className="btn solid"
               />
               {!isSignUpMode && (
-                // <a href="{{ url_for('forgot') }}" className="forgot-password-link">
-                //   Forgot Password?
-                // </a>
-                 <Link to="/admin/forgot" className="forgot-password-link">Forgot Password?</Link>
+                <Link to="/admin/forgot" className="forgot-password-link">Forgot Password?</Link>
               )}
               <p className="social-text">Or Sign in with social platforms</p>
               <div className="social-media">

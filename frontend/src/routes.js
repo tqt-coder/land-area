@@ -10,6 +10,7 @@ import Dashboard from 'views/Dashboard.js';
 import {default as Map } from 'views/Map.js';
 import TableList from 'views/TableList.js';
 import UserProfile from 'views/UserProfile.js';
+import Logout from 'views/logout';
 
 var routes = [
     {
@@ -28,14 +29,14 @@ var routes = [
         component: <Map />,
         layout: '/admin',
     },
-    // {
-    //     path: '/login',
-    //     name: 'Notifications',
-    //     rtlName: 'إخطارات',
-    //     icon: 'tim-icons icon-bell-55',
-    //     component: <Notifications />,
-    //     layout: '/admin',
-    // },
+    {
+        path: '/logout',
+        name: 'Logout',
+        rtlName: 'إخطارات',
+        icon: 'tim-icons icon-bell-55',
+        component: <Logout />,
+        layout: '/admin',
+    },
     {
         path: '/user-profile',
         name: 'Introduce',

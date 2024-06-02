@@ -15,8 +15,11 @@ function useChartData(_code) {
         const fetchData = async () => {
             try {
                 const result = await DashBoardService.calcArea(_code);
-                const areaSum = result.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-                setTotalArea(Math.round(areaSum * 10000) / 10000);
+                let areaSum;
+                if(result){
+                    areaSum = result.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+                    setTotalArea(Math.round(areaSum * 10000) / 10000);
+                }
                 setData(result);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -67,8 +70,12 @@ function Dashboard() {
         return <Spinner color="primary" />;
     }
 
-    if (!data.length || totalArea === 0) {
-        return <div>No data available</div>;
+    if (!data || !data.length || totalArea === 0) {
+        return (
+            <div className='content'>
+                <h2 style={{ textAlign: 'center' }}>No data available to show dashboard</h2>
+            </div>
+        );
     }
 
     return (
