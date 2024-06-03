@@ -1,9 +1,5 @@
 # Land area measuremen project
 
-### Memebers:
-1. Trần Việt Hùng
-2. Lên Nguyễn Hoàng Vinh
-
 ### Run project:
 1. Frontend:
 - Move to frontend folder
@@ -29,7 +25,7 @@
     ```
 - Run backend:
     ```
-        flask run
+        python app.py
     ```
 3. Database mysql
     Script in path: /mysql/sql.sql

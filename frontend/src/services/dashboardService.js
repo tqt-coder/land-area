@@ -25,7 +25,6 @@ instance.interceptors.request.use(config => {
 const DashBoardService = {
   calcArea: async (__code, navigate) => {
     try {
-      
       const response = await instance.get(`${baseURL}/get_area?ward_code=${__code}`);
       if(response.status !== 200){
         alert("Please login");
