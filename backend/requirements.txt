@@ -9,3 +9,4 @@ secure-smtplib
 bcrypt
 Flask-Mail
 PyJWT
+python-dotenv
