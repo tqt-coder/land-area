@@ -2,20 +2,14 @@
 import React from "react";
 // nodejs library that concatenates classes
 import classNames from "classnames";
-import LogoutButton from '../../views/logout';
 // reactstrap components
 import {
-  Button,
   Collapse,
   DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   UncontrolledDropdown,
   Input,
-  InputGroup,
   NavbarBrand,
   Navbar,
-  NavLink,
   Nav,
   Container,
   Modal,

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { forgotPassword } from "../services/authService";
 import { Helmet } from 'react-helmet';
 import "../assets/demo/login.css";
@@ -7,8 +7,8 @@ import "../assets/demo/login.css";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const [error, setError] = useState("");
-  const [category, setCategory] = useState("");
+  const [setError] = useState("");
+  const [setCategory] = useState("");
   const [email, setEmail] = useState("");
 
   const handleSubmit = async (e) => {
@@ -33,10 +33,6 @@ const ForgotPassword = () => {
     }
   };
 
-  const handleLoginClick = () => {
-    navigate('/admin/login');
-  };
-
   return (
     <>
     <Helmet>
@@ -51,7 +47,7 @@ const ForgotPassword = () => {
               <i className="fas fa-envelope"></i>
               <input type="email" placeholder="Email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
-            <input type="submit" value="Submit" className="btn solid" />
+            <input type="submit" value="Submit" className="btn btn-danger" />
           </form>
         </div>
       </div>
@@ -59,7 +55,7 @@ const ForgotPassword = () => {
         <div className="panel left-panel">
           <div className="content">
             <form action="/admin/login" method="get" className="sign-in-form form-css">
-              <input type="submit" value="Sign In" className="btn solid" />
+              <input type="submit" value="Sign In" className="btn btn-danger" />
             </form>
           </div>
           <img src="/assets/img/log.svg" className="image" alt="" />

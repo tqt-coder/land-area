@@ -132,7 +132,7 @@ const Login = () => {
               <input
                 type="submit"
                 value={isSignUpMode ? "Sign Up" : "Login"}
-                className="btn solid"
+                className="btn btn-danger"
               />
               {!isSignUpMode && (
                 <Link to="/admin/forgot" className="forgot-password-link">Forgot Password?</Link>
@@ -160,7 +160,7 @@ const Login = () => {
             <div className="content">
               <h3>Create an account</h3>
               <p></p>
-              <button className="btn transparent" id="sign-up-btn" onClick={toggleMode}>
+              <button className="btn btn-dark" id="sign-up-btn" onClick={toggleMode}>
                 Sign Up
               </button>
             </div>
@@ -170,7 +170,7 @@ const Login = () => {
             <div className="content">
               <h3>Already have an account?</h3>
               <p></p>
-              <button className="btn transparent" id="sign-in-btn" onClick={toggleMode}>
+              <button className="btn btn-dark" id="sign-in-btn" onClick={toggleMode}>
                 Sign In
               </button>
             </div>
