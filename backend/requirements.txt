@@ -10,3 +10,5 @@ bcrypt
 Flask-Mail
 PyJWT
 python-dotenv
+opencv-python
+imageio
