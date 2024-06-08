@@ -276,7 +276,9 @@ def merge_large_img(data: json = {}):
         root = "annotations"
         flag = True
     else:
-        root,flag = check_dir_tree(dir_tree= ["data","annotations", data['province'], data["district"],data["ward"]])
+        # hard code
+        # root,flag = check_dir_tree(dir_tree= ["data","annotations", data['province'], data["district"],data["ward"]])
+        root,flag = check_dir_tree(dir_tree= ["data","annotations", "Lâm Đồng","Đà Lạt","10"])
     if flag:
         index1=[i for i in range(56,64)]
         index2=[i for i in range(48,56)]
@@ -308,15 +310,8 @@ def sub(image: np.ndarray,x1:int, y1:int, x2:int, y2:int)-> np.ndarray:
     resized_submatrix = np.resize(submatrix,(y1 - y2, x2 - x1))
     return resized_submatrix
 
-## Download Images
-# @app.route("/download_img", methods=['POST'])
 def download_img(data):
     if data:
-        # data = {
-        #     key: [int(x) for x in params.getlist(key)] if key == 'lst_img' else params[key]
-        #     for key in params
-        # }
-
         geo_series = get_custom_image(data=data)
         if "lst_img" not in data or data["lst_img"]==[]:
             save_npy(geo_series,data)
@@ -333,8 +328,6 @@ def download_img(data):
 @app.route('/get_area', methods=['POST','GET'])
 @login_required
 def get_area():
-    # params = request.args.get('province')
-    # data = {'province': 'Lâm Đồng', 'district': 'Đà Lạt', 'ward': '10'}
     p_province  = request.args.get('province')
     p_district  = request.args.get('district')
     p_ward      = request.args.get('ward')
@@ -346,7 +339,6 @@ def get_area():
     }
     print('data',data)
     if data:
-        is_download_complete = download_img(data)
         is_download_complete = True
         data2 = data
         if is_download_complete:
@@ -359,15 +351,15 @@ def get_area():
                 big_images[new_mask == False] = 0  
                 
                 area = calculate_area(image=big_images, mask=new_mask)
-                print('area',area)
                 serializable_area = {int(k): v for k, v in area.items()}
 
                 # Serialize the dictionary to JSON
-                json_data = json.dumps(serializable_area)
-                response = jsonify({"img":big_images.tolist(), 'area': str(json_data),'status': 200})
+                # json_data = json.dumps(serializable_area)
+                # response = jsonify({"img":big_images.tolist(), 'area': serializable_area,'status': 200})
+                response = jsonify({ 'area': serializable_area,'status': 200})
                 response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
                 response.headers.add('Access-Control-Allow-Credentials', 'true')
-                # return ({'area': str(json_data)})
+                print('area',{ 'area': serializable_area,'status': 200})
                 return response
             else:
                 return "Not having annotations or images!!!"

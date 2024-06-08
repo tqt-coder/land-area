@@ -13,8 +13,9 @@ from shapely.geometry.base import BaseGeometry
 from geo_func import split_polygon, read_geopandas_data
 
 def get_npy(data: json) -> np.ndarray:
-    root,flag = check_dir_tree(dir_tree= ["data","mask",data["province"],data["district"],data["ward"]])
-    print('flag: ',get_npy)
+    # hard code
+    # root,flag = check_dir_tree(dir_tree= ["data","mask",data["province"],data["district"],data["ward"]])
+    root,flag = check_dir_tree(dir_tree= ["data","mask","Lâm Đồng","Đà Lạt","10"])
     if flag:
         mask = np.load(os.path.join(root,"mask.npy"))
         return mask
