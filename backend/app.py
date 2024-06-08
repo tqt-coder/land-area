@@ -10,6 +10,14 @@ from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from dotenv import load_dotenv
 import os
+from image_downloading import run, check_dir_tree
+from render_report import calculate_area, merging_row
+from Satellite_Image_Collector import get_custom_image, get_npy, save_npy
+import json
+import numpy as np
+from PIL import Image
+import matplotlib.pyplot as plt
+from werkzeug.datastructures import ImmutableMultiDict
 
 # Load environment variables from .env file
 load_dotenv()
@@ -127,19 +135,19 @@ def getWardsByDistrictCode():
     response.headers.add('Access-Control-Allow-Credentials', 'true')
     return response
 
-@app.route('/get_area', methods=['GET'])
-@login_required
-def get_area():
-    ward_code = request.args.get('ward_code')
-    connection = createConnectDB()
-    cursor = connection.cursor()
-    cursor.execute('SELECT land_area FROM landarea.wards WHERE code = %s', [ward_code])
-    rows = cursor.fetchall()
-    cursor.close()
-    response = jsonify(rows)
-    response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
-    return response
+# @app.route('/get_area', methods=['GET'])
+# @login_required
+# def get_area():
+#     ward_code = request.args.get('ward_code')
+#     connection = createConnectDB()
+#     cursor = connection.cursor()
+#     cursor.execute('SELECT land_area FROM landarea.wards WHERE code = %s', [ward_code])
+#     rows = cursor.fetchall()
+#     cursor.close()
+#     response = jsonify(rows)
+#     response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+#     response.headers.add('Access-Control-Allow-Credentials', 'true')
+#     return response
 
 @app.route('/forgot', methods=['POST'])
 def forgot():
@@ -261,6 +269,144 @@ def logout():
 @app.route('/', methods=['GET'])
 def homepage():
     return render_template('reset_email.html')
+
+def merge_large_img(data: json = {}):
+    # Check tree
+    if data == {}:
+        root = "annotations"
+        flag = True
+    else:
+        root,flag = check_dir_tree(dir_tree= ["data","annotations", data['province'], data["district"],data["ward"]])
+    if flag:
+        index1=[i for i in range(56,64)]
+        index2=[i for i in range(48,56)]
+        index3=[i for i in range(40,48)]
+        index4=[i for i in range(32,40)]
+        index5=[i for i in range(24,32)]
+        index6=[i for i in range(16,24)]
+        index7=[i for i in range(8,16)] 
+        index8 = np.arange(7, -1, -1)
+        index = [index1, index2, index3, index4, index5, index6, index7, index8]
+        big_images=merging_row(index[0], folder_path=root)
+        for i in index[1:]:
+            image=merging_row(i, folder_path=root)
+            big_images = np.concatenate((big_images, image))
+        return big_images
+    else:
+        return False
+
+
+def get_area_total(big_images,mask):
+    print(calculate_area(big_images, mask))
+    unique_values, counts = np.unique(mask, return_counts=True)
+    print(unique_values, counts)
+    total_sum = sum(calculate_area(big_images, mask).values())
+    return total_sum
+
+def sub(image: np.ndarray,x1:int, y1:int, x2:int, y2:int)-> np.ndarray:
+    submatrix = [row[x1:x2] for row in image[y2:y1]]
+    resized_submatrix = np.resize(submatrix,(y1 - y2, x2 - x1))
+    return resized_submatrix
+
+## Download Images
+# @app.route("/download_img", methods=['POST'])
+def download_img(data):
+    if data:
+        # data = {
+        #     key: [int(x) for x in params.getlist(key)] if key == 'lst_img' else params[key]
+        #     for key in params
+        # }
+
+        geo_series = get_custom_image(data=data)
+        if "lst_img" not in data or data["lst_img"]==[]:
+            save_npy(geo_series,data)
+        for idx, bound in enumerate(geo_series):
+            try:
+                run(idx=data['lst_img'][idx],bound=bound.bounds, data=data)
+            except:
+                run(idx=idx,bound=bound.bounds,data=data)
+        return True
+    else:
+        print("You doesn't send ward information!")
+        return False
+
+@app.route('/get_area', methods=['POST','GET'])
+@login_required
+def get_area():
+    # params = request.args.get('province')
+    # data = {'province': 'Lâm Đồng', 'district': 'Đà Lạt', 'ward': '10'}
+    p_province  = request.args.get('province')
+    p_district  = request.args.get('district')
+    p_ward      = request.args.get('ward')
+    data        = {
+        'province': p_province,
+        'district': p_district,
+        'ward'    : p_ward,
+        'lst_img' : [1,2]
+    }
+    print('data',data)
+    if data:
+        is_download_complete = download_img(data)
+        is_download_complete = True
+        data2 = data
+        if is_download_complete:
+            # data = {key: value for key, value in params.items()}
+            mask = get_npy(data=data2)
+            big_images = merge_large_img(data=data2)
+            # Change link img
+            if isinstance(mask, np.ndarray) and isinstance(big_images, np.ndarray):
+                new_mask = np.rot90(mask, k=1)
+                big_images[new_mask == False] = 0  
+                
+                area = calculate_area(image=big_images, mask=new_mask)
+                print('area',area)
+                serializable_area = {int(k): v for k, v in area.items()}
+
+                # Serialize the dictionary to JSON
+                json_data = json.dumps(serializable_area)
+                response = jsonify({"img":big_images.tolist(), 'area': str(json_data),'status': 200})
+                response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+                response.headers.add('Access-Control-Allow-Credentials', 'true')
+                # return ({'area': str(json_data)})
+                return response
+            else:
+                return "Not having annotations or images!!!"
+        else:
+            return "fail"
+    else:
+        return "fail"
+    
+    
+# import torch
+# from mmengine.model.utils import revert_sync_batchnorm
+# from mmseg.apis import init_model, inference_model, show_result_pyplot
+# config_file = './configs/segformer/segformer_mit-b5_8xb2-160k_loveda-640x640.py'
+# checkpoint_file = '/mmsegmentation/data/segformer.pth'
+# # build the model from a config file and a checkpoint file
+# model = init_model(config_file, checkpoint_file, device='cuda')
+
+
+@app.route('/predict_data', methods=['POST'])
+def predict_data():
+    params = request.args.to_dict()
+    if params:
+        data = {key: value for key, value in params.items()}
+        root, flag = check_dir_tree(["data","images",data["province"],data["district"],data["ward"]])
+        root = root.replace("\\","\\\\")
+
+        for filename in os.listdir(root):
+            image_path = os.path.join(root, filename)
+
+            save_dir,_ = check_dir_tree(["data","annotations",data["province"], data["district"],data["ward"]])
+            save_dir = root.replace("\\","\\\\")
+            result = inference_model(model, image_path)
+            vis_iamge = show_result_pyplot(model, image_path, result, save_dir =save_dir,
+                                        opacity=1.0, show=False,  draw_gt=True, with_labels=False)
+            # vis_iamge = show_result_pyplot(model, image_path, result, save_dir ='data/results/',
+            #                             opacity=1.0, show=False,  draw_gt=True, with_labels=False)
+
+        return "abc"
+    return "done have model"
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)

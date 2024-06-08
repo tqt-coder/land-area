@@ -140,3 +140,5 @@ backend/htmlcov/
 backend/tox/
 backend/docs/_build/
 backend/mask.npy
+backend/annotations/
+backend/data/mask
