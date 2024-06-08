@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from 'js-cookie';
 
 //REACT_APP_{varname}, process.env.{var_name}
-const baseURL = 'http://127.0.0.1'
+const baseURL = 'http://127.0.0.1:5000'
 const instance = axios.create({
   baseURL,
   withCredentials: true, // Ensure that cookies are sent with requests
@@ -23,14 +23,16 @@ instance.interceptors.request.use(config => {
 });
 
 const DashBoardService = {
-  calcArea: async (__code, navigate) => {
+  calcArea: async (_wardName, _districtName, _cityName, navigate) => {
     try {
-      const response = await instance.get(`${baseURL}/get_area?ward_code=${__code}`);
+      console.log(_wardName,_districtName,_cityName)
+      const response = await instance.get(`${baseURL}/get_area?ward=${_wardName}&&district=${_districtName}&&province=${_cityName}`);
+;
       if(response.status !== 200){
         alert("Please login");
         navigate("/login"); 
       }
-      let xData = JSON.parse(response.data[0][0]);
+      let xData = JSON.parse(response.area);
       console.log(xData)
       let arr;
       if(xData){

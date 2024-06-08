@@ -76,7 +76,9 @@ const Geography = () => {
 
     const onSubmit = (data) => {
         const selectedWard = wards.find(ward => ward.code === data.ward);
-        navigate(`/admin/dashboard?ward=${selectedWard.full_name}&wardCode=${selectedWard.code}`);
+        const selecteDistrict = cities.find(ward => ward.code === data.city);
+        const selecteCity = provinces.find(ward => ward.code === data.province);
+        navigate(`/admin/dashboard?ward=${selectedWard.full_name}&wardCode=${selectedWard.code}&wardName=${selectedWard.name}&districtName=${selecteDistrict.name}&cityName=${selecteCity.name}`);
     };
 
     return (

@@ -17,7 +17,7 @@ import { chartExample1, chartExample4 } from "variables/charts.js";
 import { useLocation } from "react-router-dom";
 import { PropagateLoader } from "react-spinners";
 
-function useChartData(_code) {
+function useChartData(_code, _wardName, _districtName, _cityName) {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [totalArea, setTotalArea] = useState(0);
@@ -28,7 +28,7 @@ function useChartData(_code) {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const result = await DashBoardService.calcArea(_code, navigate);
+        const result = await DashBoardService.calcArea(_wardName, _districtName, _cityName, navigate);
         if (result) {
           const areaSum = result.reduce(
             (accumulator, currentValue) => accumulator + currentValue,
@@ -47,7 +47,7 @@ function useChartData(_code) {
     fetchData();
 
     return;
-  }, [_code, navigate]);
+  }, [_cityName, _code, _districtName, _wardName, navigate]);
 
   return { data, totalArea, loading };
 }
@@ -58,7 +58,11 @@ function Dashboard() {
   const queryParams = new URLSearchParams(location.search);
   const selectedWard = queryParams.get("ward") || "Label"; // Default value if not found
   const wardCode = queryParams.get("wardCode"); // Default value if not found
-  const { data, totalArea, loading } = useChartData(wardCode);
+  const wardName = queryParams.get("wardName"); // Default value if not found
+  const districtName = queryParams.get("districtName"); // Default value if not found
+  const cityName = queryParams.get("cityName"); // Default value if not found
+  console.log('pa ',wardName);
+  const { data, totalArea, loading } = useChartData(wardCode,wardName,districtName,cityName);
 
   const handleBgChartData = (name) => setBigChartData(name);
 
