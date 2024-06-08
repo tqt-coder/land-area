@@ -27,13 +27,12 @@ const DashBoardService = {
     try {
       console.log(_wardName,_districtName,_cityName)
       const response = await instance.get(`${baseURL}/get_area?ward=${_wardName}&&district=${_districtName}&&province=${_cityName}`);
-;
-      if(response.status !== 200){
+      console.log(response)
+      if(response.data.status !== 200){
         alert("Please login");
         navigate("/login"); 
       }
-      let xData = JSON.parse(response.area);
-      console.log(xData)
+      let xData = response.data.area;
       let arr;
       if(xData){
         arr = Object.values(xData);
