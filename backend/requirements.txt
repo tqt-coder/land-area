@@ -12,3 +12,4 @@ PyJWT
 python-dotenv
 opencv-python
 imageio
+requests
