@@ -110,16 +110,17 @@ form.sign-in-form {
 }
 
 .input-field {
-  max-width: 380px;
+  max-width: 460px;
   width: 100%;
   background-color: #f0f0f0;
   margin: 10px 0;
   height: 55px;
-  border-radius: 55px;
   display: grid;
   grid-template-columns: 15% 85%;
   padding: 0 0.4rem;
   position: relative;
+  border-radius: 25px;
+  padding: 0 23px;
 }
 
 .input-field i {
