@@ -1,6 +1,6 @@
 {
   "name": "black-dashboard-react",
-  "proxy": "http://127.0.0.1",
+  "proxy": "http://52.231.138.94/",
   "version": "1.2.2",
   "private": true,
   "dependencies": {
@@ -31,7 +31,6 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "start-backend": "cd backend && flask run --no-debugger",
     "build": "react-scripts build && gulp licenses",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
