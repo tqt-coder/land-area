@@ -1,8 +1,32 @@
 {
   "name": "black-dashboard-react",
+  "proxy": "http://52.231.138.94/",
   "version": "1.2.2",
-  "description": "A React dashboard template with black design",
-  "main": "index.js",
+  "private": true,
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "6.4.0",
+    "antd": "^5.16.4",
+    "axios": "^1.6.8",
+    "bootstrap": "4.6.2",
+    "chart.js": "3.9.1",
+    "classnames": "2.3.2",
+    "js-cookie": "^3.0.5",
+    "json-server": "^1.0.0-alpha.23",
+    "perfect-scrollbar": "1.5.5",
+    "prop-types": "15.8.1",
+    "react": "^18.3.0",
+    "react-chartjs-2": "3.3.0",
+    "react-dom": "^18.3.0",
+    "react-helmet": "^6.1.0",
+    "react-hook-form": "^7.51.3",
+    "react-icons": "^5.2.1",
+    "react-notification-alert": "^0.0.13",
+    "react-router-dom": "^6.11.1",
+    "react-scripts": "5.0.1",
+    "react-spinners": "^0.13.8",
+    "sass": "1.62.1",
+    "styled-components": "^6.1.8"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build && gulp licenses",
@@ -12,53 +36,12 @@
     "compile-scss": "sass src/assets/scss/black-dashboard-react.scss src/assets/css/black-dashboard-react.css",
     "minify-scss": "sass src/assets/scss/black-dashboard-react.scss src/assets/css/black-dashboard-react.min.css --style compressed"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/yourusername/black-dashboard-react.git"
-  },
-  "keywords": [
-    "react",
-    "dashboard",
-    "template",
-    "black",
-    "design"
-  ],
-  "author": "Your Name",
-  "license": "MIT",
-  "peerDependencies": {
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0"
-  },
-  "dependencies": {
-    "@fortawesome/fontawesome-free": "^6.4.0",
-    "antd": "^5.16.4",
-    "axios": "^1.6.8",
-    "bootstrap": "^4.6.2",
-    "chart.js": "^3.9.1",
-    "classnames": "^2.3.2",
-    "js-cookie": "^3.0.5",
-    "json-server": "^1.0.0-alpha.23",
-    "perfect-scrollbar": "^1.5.5",
-    "prop-types": "^15.8.1",
-    "react": "^16.14.0",
-    "react-chartjs-2": "^3.3.0",
-    "react-dom": "^16.14.0",
-    "react-helmet": "^6.1.0",
-    "react-hook-form": "^7.51.3",
-    "react-icons": "^5.2.1",
-    "react-notification-alert": "^0.0.13",
-    "react-router-dom": "^6.11.1",
-    "react-scripts": "^5.0.1",
-    "react-spinners": "^0.13.8",
-    "sass": "^1.62.1",
-    "styled-components": "^6.1.8"
-  },
-  "devDependencies": {
-    "concurrently": "^8.2.2",
-    "typescript": "^5.0.4"
-  },
   "eslintConfig": {
     "extends": "react-app"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
   },
   "browserslist": [
     ">0.2%",
@@ -67,7 +50,14 @@
     "not op_mini all"
   ],
   "optionalDependencies": {
-    "eslint-plugin-flowtype": "^8.0.3",
-    "reactstrap": "^8.10.1"
+    "eslint-plugin-flowtype": "8.0.3",
+    "reactstrap": "8.10.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^4.9.5"
+  },
+  "overrides": {
+    "svgo": "3.0.2"
   }
 }
