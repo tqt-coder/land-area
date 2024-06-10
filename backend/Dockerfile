@@ -13,5 +13,8 @@ RUN pip3 install --upgrade pip && pip3 install -r requirements.txt
 # Copy the application code
 COPY . /app
 
-# Run the application with a delay to wait for dependencies to be ready
-CMD sleep 30s && python app.py --host 0.0.0.0 --port 5000
+# Expose the port
+EXPOSE 80
+
+# Run the application
+CMD ["python", "app.py", "--host", "0.0.0.0", "--port", "80"]

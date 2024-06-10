@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   mysql-app-container:
     build: ./mysql/
@@ -8,22 +10,24 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: '1234'
       MYSQL_DATABASE: 'landarea'
+
   web-ui:
     build: ./frontend
-    ports: 
-     - "3000:3000"
-    volumes:
-    - ./frontend/:/app
-    restart: unless-stopped
     container_name: web-ui
+    ports: 
+      - "3000:3000"
+    volumes:
+      - ./frontend/:/app
+    restart: unless-stopped
     stdin_open: true
     tty: true
     depends_on:
       - pythonapp
+
   pythonapp:
     build: ./backend/
-    restart: always
     container_name: pythonapp
+    restart: always
     ports:
       - "80:5000"  # Expose the port your Python app listens on
     depends_on:
