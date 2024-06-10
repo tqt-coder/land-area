@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
 // Base URL of your Flask API
-const baseURL = "http://52.231.219.61";
+const baseURL = "http://52.231.138.94";
 
 // Create a new Axios instance with base URL
 const instance = axios.create({
