@@ -447,3 +447,10 @@ form.sign-in-form {
   background-color: #fff !important;
   color: #000 !important;
 }
+
+h4 {
+  color: #fff;
+  font-size: 20px;
+  text-transform: uppercase;
+  margin-bottom: 62px;
+}
