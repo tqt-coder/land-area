@@ -336,7 +336,7 @@ def get_area():
         'lst_img' : [0,1, 2, 3]
     }
     print('data',data)
-    if data and ( data['province'] is not None or data['district'] is not None or data['ward'] is not None):
+    if data and ( p_province is not None or p_district is not None or ward is not None):
         is_download_complete = download_img(data)
         data2 = data
         if is_download_complete:
