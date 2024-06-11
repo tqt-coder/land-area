@@ -161,9 +161,7 @@ def forgot():
         # HTML formatted email content with a clickable link
         link = url_for('reset_with_token', token=token, _external=True)
         image_url = url_for('static', filename='img/logo_email.jpg',_external=True)
-        print(12313221312321321)
-        print(image_url)
-        print(link)
+
         msg.html = render_template('reset_email.html', name=email, link=link, img=image_url)
 
         mail.send(msg)
@@ -335,7 +333,7 @@ def get_area():
         'province': p_province,
         'district': p_district,
         'ward'    : p_ward,
-        'lst_img' : []
+        'lst_img' : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64]
     }
     print('data',data)
     if data:
