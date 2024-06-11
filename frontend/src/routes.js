@@ -29,14 +29,14 @@ var routes = [
         component: <Map />,
         layout: '/admin',
     },
-    {
-        path: '/tables',
-        name: 'Library',
-        rtlName: 'قائمة الجدول',
-        icon: 'tim-icons icon-puzzle-10',
-        component: <TableList />,
-        layout: '/admin',
-    },
+    // {
+    //     path: '/tables',
+    //     name: 'Library',
+    //     rtlName: 'قائمة الجدول',
+    //     icon: 'tim-icons icon-puzzle-10',
+    //     component: <TableList />,
+    //     layout: '/admin',
+    // },
     {
         path: '/dashboard',
         name: 'Dashboard',

@@ -266,10 +266,6 @@ def logout():
     response.set_cookie('tooken', '', expires=0)  # Remove the cookie
     return response
 
-@app.route('/', methods=['GET'])
-def homepage():
-    return render_template('reset_email.html')
-
 def merge_large_img(data: json = {}):
     # Check tree
     if data == {}:
