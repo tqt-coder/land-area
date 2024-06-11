@@ -339,7 +339,7 @@ def get_area():
     }
     print('data',data)
     if data:
-        is_download_complete = True
+        is_download_complete = download_img(data)
         data2 = data
         if is_download_complete:
             # data = {key: value for key, value in params.items()}
