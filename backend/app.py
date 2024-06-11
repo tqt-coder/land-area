@@ -362,9 +362,15 @@ def get_area():
             else:
                 return "Not having annotations or images!!!"
         else:
-            return "fail"
+            response = jsonify({ 'area': null,'status': 500})
+            response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+            return response
     else:
-        return "fail"
+        response = jsonify({ 'area': null,'status': 500})
+        response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
     
     
 # import torch
