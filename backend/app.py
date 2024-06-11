@@ -161,7 +161,10 @@ def forgot():
         # HTML formatted email content with a clickable link
         link = url_for('reset_with_token', token=token, _external=True)
         image_url = url_for('static', filename='img/logo_email.jpg',_external=True)
-        msg.html = render_template('reset_email.html', name=email, link=link, image_url=image_url)
+        print(12313221312321321)
+        print(image_url)
+        print(link)
+        msg.html = render_template('reset_email.html', name=email, link=link, img=image_url)
 
         mail.send(msg)
 
