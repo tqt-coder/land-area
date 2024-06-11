@@ -15,7 +15,7 @@ services:
     build: ./frontend
     container_name: web-ui
     ports: 
-      - "80:3000"
+      - "3000:3000"
     volumes:
       - ./frontend/:/app
     restart: unless-stopped
@@ -29,6 +29,6 @@ services:
     container_name: pythonapp
     restart: always
     ports:
-      - "5000:5000"  # Expose the port your Python app listens on
+      - "80:5000"  # Expose the port your Python app listens on
     depends_on:
       - mysql-app-container
