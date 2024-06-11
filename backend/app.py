@@ -335,7 +335,7 @@ def get_area():
         'province': p_province,
         'district': p_district,
         'ward'    : p_ward,
-        'lst_img' : [1,2]
+        'lst_img' : []
     }
     print('data',data)
     if data:
