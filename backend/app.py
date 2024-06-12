@@ -3,8 +3,7 @@ from flask_cors import CORS, cross_origin
 import mysql.connector
 import bcrypt
 import jwt
-import datetime
-from datetime import timezone
+from datetime import datetime, timedelta, timezone
 from functools import wraps
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
@@ -212,8 +211,8 @@ def login():
         cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
         user = cursor.fetchone()
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
-            now = datetime.datetime.now(timezone.utc)
-            expiration_time = now + datetime.timedelta(days=1)
+            now = datetime.now(timezone.utc)
+            expiration_time = now + timedelta(days=1)
             payload = {
                 'email': email,
                 'exp': expiration_time
@@ -333,7 +332,7 @@ def get_area():
         'province': p_province,
         'district': p_district,
         'ward'    : p_ward,
-        'lst_img' : [0,1, 2, 3]
+        'lst_img' : [0]
     }
     print('data',data)
     if data and ( p_province is not None or p_district is not None or ward is not None):
@@ -353,11 +352,28 @@ def get_area():
 
                 # Serialize the dictionary to JSON
                 # json_data = json.dumps(serializable_area)
-                # response = jsonify({"img":big_images.tolist(), 'area': serializable_area,'status': 200})
-                response = jsonify({ 'area': serializable_area,'status': 200})
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                filename = f'land_img_{timestamp}.jpg'
+                plt.imshow(big_images)
+                plt.axis('off')
+
+                # Construct the file path for saving the image in the static/img directory
+                file_path = os.path.join('static', 'img', filename)
+
+                # Save the displayed image
+                plt.savefig(file_path, bbox_inches='tight', pad_inches=0, transparent=True)
+
+                # Close the plot to release resources
+                plt.close()
+
+                
+                image_url = url_for('static', filename='img/' + filename,_external=True)
+
+                # response = jsonify({"img":big_images.tolist(), 'area': serializable_area,'status': 200, 'image_url': image_url})
+                response = jsonify({ 'area': serializable_area,'status': 200, 'image_url': image_url})
+                print(response)
                 response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
                 response.headers.add('Access-Control-Allow-Credentials', 'true')
-                print('area',{ 'area': serializable_area,'status': 200})
                 return response
             else:
                 return "Not having annotations or images!!!"
@@ -371,8 +387,7 @@ def get_area():
         response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
         response.headers.add('Access-Control-Allow-Credentials', 'true')
         return response
-    
-    
+
 # import torch
 # from mmengine.model.utils import revert_sync_batchnorm
 # from mmseg.apis import init_model, inference_model, show_result_pyplot

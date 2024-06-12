@@ -18,31 +18,31 @@ function Footer() {
       <Container fluid>
         <Nav>
           <NavItem>
-            <NavLink href="https://www.creative-tim.com/?ref=bdr-user-archive-footer">
-              Land Area Statistics
+            <NavLink href="https://vi.wikipedia.org/wiki/%C4%90%C3%A0_L%E1%BA%A1t">
+              Đà Lạt
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink href="https://www.facebook.com/vinhcet.11011917" target="_blank">
-              About Us
+            <NavLink href="https://hcmute.edu.vn/" target="_blank">
+              HCMUTE
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink href="https://www.facebook.com/vinhcet.11011917" target="_blank"> 
-              Blog
+            <NavLink href="https://feee.hcmute.edu.vn/" target="_blank"> 
+              Khoa Điện - Điện Tử
             </NavLink>
           </NavItem>
         </Nav>
         <div className="copyright">
-          © {new Date().getFullYear()} made with{" "}
-          <i className="tim-icons icon-heart-2" /> by{" "}
+          © {new Date().getFullYear()} {" "}
+          <i className="tim-icons icon-heart-2" /> {" "}
           <a
-            href="https://www.creative-tim.com/?ref=bdr-user-archive-footer"
+            href="https://feee.hcmute.edu.vn/"
             target="_blank"
           >
-            UTE
+            Khoa Điện - Điện Tử
           </a>{" "}
-          Land Area Statistics
+          HCMUTE
         </div>
       </Container>
     </footer>

@@ -20,6 +20,7 @@ import { PropagateLoader } from "react-spinners";
 function useChartData(_code, _wardName, _districtName, _cityName) {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
+  const [imgUrl, setImgUrl] = useState([]);
   const [totalArea, setTotalArea] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -28,13 +29,14 @@ function useChartData(_code, _wardName, _districtName, _cityName) {
       try {
         setLoading(true);
         const result = await DashBoardService.calcArea(_wardName, _districtName, _cityName, navigate);
-        if (result) {
-          const areaSum = result.reduce(
+        if (result && result.arr) {
+          const areaSum = result.arr.reduce(
             (accumulator, currentValue) => accumulator + currentValue,
             0
           );
           setTotalArea(Math.round(areaSum * 10000) / 10000);
-          setData(result);
+          setData(result.arr);
+          setImgUrl(result.url)
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -48,7 +50,7 @@ function useChartData(_code, _wardName, _districtName, _cityName) {
     return;
   }, [_cityName, _code, _districtName, _wardName, navigate]);
 
-  return { data, totalArea, loading };
+  return { data, totalArea, loading, imgUrl };
 }
 
 function Dashboard() {
@@ -61,7 +63,7 @@ function Dashboard() {
   const districtName = queryParams.get("districtName"); // Default value if not found
   const cityName = queryParams.get("cityName"); // Default value if not found
   console.log('pa ', wardName);
-  const { data, totalArea, loading } = useChartData(wardCode, wardName, districtName, cityName);
+  const { data, totalArea, loading, imgUrl } = useChartData(wardCode, wardName, districtName, cityName);
 
   const handleBgChartData = (name) => setBigChartData(name);
 
@@ -160,7 +162,7 @@ function Dashboard() {
               </CardHeader>
               <CardBody>
                 <div className="chart-area" style={{display:"flex", justifyContent:"center", alignItems:"center"}}>
-                  <img height="500px"   src="http://52.231.138.94/static/img/logo_email.jpg" alt="Chart Image" />
+                  <img height="500px"   src={imgUrl} alt="Chart Image" />
                 </div>
               </CardBody>
             </Card>
