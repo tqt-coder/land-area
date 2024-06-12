@@ -1,5 +1,5 @@
 import axios from "axios";
-const url = "http://52.231.219.61";
+const url = "http://127.0.0.1:5000";
 
 const login = async (email, password) => {
   try {

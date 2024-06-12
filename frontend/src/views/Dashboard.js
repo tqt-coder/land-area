@@ -24,7 +24,6 @@ function useChartData(_code, _wardName, _districtName, _cityName) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -61,8 +60,8 @@ function Dashboard() {
   const wardName = queryParams.get("wardName"); // Default value if not found
   const districtName = queryParams.get("districtName"); // Default value if not found
   const cityName = queryParams.get("cityName"); // Default value if not found
-  console.log('pa ',wardName);
-  const { data, totalArea, loading } = useChartData(wardCode,wardName,districtName,cityName);
+  console.log('pa ', wardName);
+  const { data, totalArea, loading } = useChartData(wardCode, wardName, districtName, cityName);
 
   const handleBgChartData = (name) => setBigChartData(name);
 
@@ -105,7 +104,7 @@ function Dashboard() {
   if (loading) {
     return (
       <div className="content">
-        <div class="content__spinner">
+        <div className="content__spinner">
           <PropagateLoader color="#ff3d00" size={30} />
         </div>
       </div>
@@ -160,39 +159,8 @@ function Dashboard() {
                 </Row>
               </CardHeader>
               <CardBody>
-                <div className="chart-area">
-                  <Line
-                    data={{
-                      labels: [
-                        "Forest_Land",
-                        "Road",
-                        "Water",
-                        "Agriculture",
-                        "Building",
-                        "Barren",
-                      ],
-                      datasets: [
-                        {
-                          label: selectedWard,
-                          fill: true,
-                          backgroundColor: "rgba(29,140,248,0.2)",
-                          borderColor: "#1f8ef1",
-                          borderWidth: 2,
-                          borderDash: [],
-                          borderDashOffset: 0.0,
-                          pointBackgroundColor: "#1f8ef1",
-                          pointBorderColor: "rgba(255,255,255,0)",
-                          pointHoverBackgroundColor: "#1f8ef1",
-                          pointBorderWidth: 20,
-                          pointHoverRadius: 4,
-                          pointHoverBorderWidth: 15,
-                          pointRadius: 4,
-                          data: data,
-                        },
-                      ],
-                    }}
-                    options={chartExample1.options}
-                  />
+                <div className="chart-area" style={{display:"flex", justifyContent:"center", alignItems:"center"}}>
+                  <img height="500px"   src="http://52.231.138.94/static/img/logo_email.jpg" alt="Chart Image" />
                 </div>
               </CardBody>
             </Card>
