@@ -355,35 +355,19 @@ def download_img():
 @app.route('/get_area', methods=['POST','GET'])
 # @login_required
 def get_area():
-    p_province  = request.json['province']
-    p_district  = request.json['district']
-    p_ward      = request.json['ward']
     annotations = request.json['urlAnnotations']
     mask = request.json['urlMask']
     # annotations = "data/annotation/Lâm Đồng/Đà Lạt/6"
-    province, district, ward = process_path(text=annotations)
 
     # dont wanna change, just comment mask
     # mask = "data/mask/Lâm Đồng/Đà Lạt/6"
-    province_mask, district_mask, ward_mask = process_path(text=mask)
     data = {
-        'province': province,
-        'district': district,
-        'ward': ward,
-        'province_mask': province_mask,
-        'district_mask': district_mask,
-        'ward_mask': ward_mask
+        'annotations': annotations,
+        'mask': mask
     }
-
-    # data        = {
-    #     'province': p_province,
-    #     'district': p_district,
-    #     'ward'    : p_ward,
-    #     'lst_img' : [0]
-    # }
     print('data',data)
-    if params:
-        data = {key: value for key, value in params.items()}
+    if annotations is not None or mask is not None:
+        # data = {key: value for key, value in params.items()}
         mask = get_npy(data=data)
         big_images = merge_large_img(data=data)
         # Change link img
@@ -406,7 +390,7 @@ def get_area():
             filename = f'land_img_{timestamp}.jpg'
             plt.imshow(resized_big_images)
             plt.axis('off')
-
+ 
                 # Construct the file path for saving the image in the static/img directory
             file_path = os.path.join('static', 'img', filename)
 
@@ -490,7 +474,7 @@ def get_inference():
 
                 # response = jsonify({"img":big_images.tolist(), 'area': serializable_area,'status': 200, 'image_url': image_url})
                 response = jsonify({ 'area': serializable_area,'status': 200, 'image_url': image_url})
-                print(response)
+                print({ 'area': serializable_area,'status': 200, 'image_url': image_url})
                 response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
                 response.headers.add('Access-Control-Allow-Credentials', 'true')
                 return response
