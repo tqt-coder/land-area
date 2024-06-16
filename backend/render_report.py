@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-import imageio.v3 as iio
+import imageio as iio
 import matplotlib.pyplot as plt
 
 def calculate_area(image, mask):
@@ -36,7 +36,7 @@ def open_img(root: str) -> np.ndarray:
             return False
 
 
-def merging_row(index, folder_path):
+def merging_row(index, folder_path, flag=True):
     color_ranges = {        
         0: [255, 255, 255],
         1: [0,0,255],
@@ -50,22 +50,26 @@ def merging_row(index, folder_path):
 
     img_path = os.path.join(folder_path, str(index[0])+".png")
     image_row = open_img(root=img_path)
-    if np.isin(index[0], flaw_size):
-        image_row = cv2.resize(image_row,(1926, 1824))
-    else:
+    if flag == True:
         image_row = cv2.resize(image_row,(1926, 1825))
+    else:
+        image_row = cv2.resize(image_row,(1926, 1824))
     image_row = encode_image_to_1d(image_row, color_ranges)
+    x=0
     for i in index[1:]:
         image_path = os.path.join(folder_path, str(i)+".png")
         image = open_img(root=image_path)
-        if np.isin(i, flaw_size):
-            image = cv2.resize(image,(1926, 1824))
-        else:
-            image = cv2.resize(image,(1926, 1825))
-        print(i, np.isin(i, flaw_size))
-        image = encode_image_to_1d(image, color_ranges)
-        image_row = np.concatenate((image_row, image), axis=1)
-    return image_row
+        try:
+            new_image = cv2.resize(image,(1926, 1824))
+            new_image = encode_image_to_1d(new_image, color_ranges)
+            new_image_row = np.concatenate((image_row, new_image), axis=1)
+            x+=1
+        except:
+            new_image = cv2.resize(image,(1926, 1825))
+            new_image = encode_image_to_1d(new_image, color_ranges)
+            new_image_row = np.concatenate((image_row, new_image), axis=1)
+    print(f"Num is {x}")
+    return new_image_row
 
 def encode_image_to_1d(image, color_ranges):
   """

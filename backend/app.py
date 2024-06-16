@@ -11,13 +11,13 @@ from dotenv import load_dotenv
 import os
 from image_downloading import run, check_dir_tree
 from render_report import calculate_area, merging_row
-from Satellite_Image_Collector import get_custom_image, get_npy, save_npy
+from Satellite_Image_Collector import get_custom_image, get_npy, save_npy, read_size
 import json
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 from werkzeug.datastructures import ImmutableMultiDict
-
+import cv2
 # Load environment variables from .env file
 load_dotenv()
 
@@ -273,27 +273,35 @@ def merge_large_img(data: json = {}):
         root = "annotations"
         flag = True
     else:
-        # hard code
-        # root,flag = check_dir_tree(dir_tree= ["data","annotations", data['province'], data["district"],data["ward"]])
-        root,flag = check_dir_tree(dir_tree= ["data","annotations", "Lâm Đồng","Đà Lạt","10"])
+        root,flag = check_dir_tree(dir_tree= ["data","annotations", data['province'], data["district"],data["ward"]])
     if flag:
-        index1=[i for i in range(56,64)]
-        index2=[i for i in range(48,56)]
-        index3=[i for i in range(40,48)]
-        index4=[i for i in range(32,40)]
-        index5=[i for i in range(24,32)]
-        index6=[i for i in range(16,24)]
-        index7=[i for i in range(8,16)] 
-        index8 = np.arange(7, -1, -1)
-        index = [index1, index2, index3, index4, index5, index6, index7, index8]
+        size_path = root.replace("annotations","mask")
+        W, H = read_size(root=size_path)
+
+        index = []
+        for i in range(H,1, -1):
+            index.append([x for x in range(W*i-W, W*i)])
+        index.append(np.arange(W-1,-1,-1))
+        # index1=[i for i in range(56,64)]
+        # index2=[i for i in range(48,56)]
+        # index3=[i for i in range(40,48)]
+        # index4=[i for i in range(32,40)]
+        # index5=[i for i in range(24,32)]
+        # index6=[i for i in range(16,24)]
+        # index7=[i for i in range(8,16)]
+        # index8 = np.arange(7, -1, -1)
+        # index = [index1, index2, index3, index4, index5, index6, index7, index8]
         big_images=merging_row(index[0], folder_path=root)
         for i in index[1:]:
-            image=merging_row(i, folder_path=root)
-            big_images = np.concatenate((big_images, image))
+            try:
+                image=merging_row(i, folder_path=root)
+                big_images = np.concatenate((big_images, image))
+            except:
+                image=merging_row(i, folder_path=root, flag=False)
+                big_images = np.concatenate((big_images, image))
         return big_images
     else:
         return False
-
 
 def get_area_total(big_images,mask):
     print(calculate_area(big_images, mask))
@@ -307,24 +315,89 @@ def sub(image: np.ndarray,x1:int, y1:int, x2:int, y2:int)-> np.ndarray:
     resized_submatrix = np.resize(submatrix,(y1 - y2, x2 - x1))
     return resized_submatrix
 
-def download_img(data):
-    if data:
-        geo_series = get_custom_image(data=data)
+## Download Images
+@app.route("/download_img", methods=['POST'])
+def download_img():
+    params = request.args
+    if params:
+        data = {
+            key: [int(x) for x in params.getlist(key)] if key == 'lst_img' else params[key]
+            for key in params
+        }
+
+        geo_series, G = get_custom_image(data=data)
         if "lst_img" not in data or data["lst_img"]==[]:
-            save_npy(geo_series,data)
+            save_npy(geo_series,G, data)
         for idx, bound in enumerate(geo_series):
             try:
                 run(idx=data['lst_img'][idx],bound=bound.bounds, data=data)
             except:
                 run(idx=idx,bound=bound.bounds,data=data)
-        return True
+        return "Done"
     else:
-        print("You doesn't send ward information!")
-        return False
+        return "You doesn't send ward information!"
 
 @app.route('/get_area', methods=['POST','GET'])
-@login_required
+# @login_required
 def get_area():
+    params = request.args.to_dict()
+    if params:
+        data = {key: value for key, value in params.items()}
+        mask = get_npy(data=data)
+        big_images = merge_large_img(data=data)
+        # Change link img
+        if isinstance(mask, np.ndarray) and isinstance(big_images, np.ndarray):
+            new_mask = np.rot90(mask, k=1)
+            if new_mask.shape == big_images.shape:
+                resized_mask = new_mask
+            else:
+                new_mask_shape = new_mask.shape
+                # Resize new_mask to match big_images if dimensions differ
+                resized_big_images = cv2.resize(big_images, (new_mask_shape[1], new_mask_shape[0]))
+
+            resized_big_images[new_mask == False] = False 
+            area = calculate_area(image=resized_big_images, mask=new_mask)
+            serializable_area = {int(k): v for k, v in area.items()}
+
+                # Serialize the dictionary to JSON
+                # json_data = json.dumps(serializable_area)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f'land_img_{timestamp}.jpg'
+            plt.imshow(resized_big_images)
+            plt.axis('off')
+
+                # Construct the file path for saving the image in the static/img directory
+            file_path = os.path.join('static', 'img', filename)
+
+                # Save the displayed image
+            plt.savefig(file_path, bbox_inches='tight', pad_inches=0, transparent=True)
+
+            # Close the plot to release resources
+            plt.close()
+
+                
+            image_url = url_for('static', filename='img/' + filename,_external=True)
+
+                # response = jsonify({"img":big_images.tolist(), 'area': serializable_area,'status': 200, 'image_url': image_url})
+            response = jsonify({ 'area': serializable_area,'status': 200, 'image_url': image_url})
+            print(response)
+            response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+            return response
+        else:
+            response = jsonify({ 'area': null,'status': 500})
+            response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+            return response
+    else:
+        response = jsonify({ 'area': null,'status': 500})
+        response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
+
+@app.route('/get_inference', methods=['POST','GET'])
+@login_required
+def get_inference():
     p_province  = request.args.get('province')
     p_district  = request.args.get('district')
     p_ward      = request.args.get('ward')
@@ -345,16 +418,21 @@ def get_area():
             # Change link img
             if isinstance(mask, np.ndarray) and isinstance(big_images, np.ndarray):
                 new_mask = np.rot90(mask, k=1)
-                big_images[new_mask == False] = 0  
-                
-                area = calculate_area(image=big_images, mask=new_mask)
+                if new_mask.shape == big_images.shape:
+                    resized_mask = new_mask
+                else:
+                    new_mask_shape = new_mask.shape
+                    # Resize new_mask to match big_images if dimensions differ
+                    resized_big_images = cv2.resize(big_images, (new_mask_shape[1], new_mask_shape[0]))  
+                resized_big_images[new_mask == False] = False
+                area = calculate_area(image=resized_big_images, mask=new_mask)
                 serializable_area = {int(k): v for k, v in area.items()}
 
                 # Serialize the dictionary to JSON
                 # json_data = json.dumps(serializable_area)
                 timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
                 filename = f'land_img_{timestamp}.jpg'
-                plt.imshow(big_images)
+                plt.imshow(resized_big_images)
                 plt.axis('off')
 
                 # Construct the file path for saving the image in the static/img directory
@@ -387,6 +465,7 @@ def get_area():
         response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
         response.headers.add('Access-Control-Allow-Credentials', 'true')
         return response
+
 
 # import torch
 # from mmengine.model.utils import revert_sync_batchnorm

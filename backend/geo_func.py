@@ -3,7 +3,7 @@ import numpy as np
 from shapely.ops import split
 from shapely.geometry import MultiPolygon, LineString
 
-def read_geopandas_data(province: str = "Lâm Đồng", district: str ="Đà Lạt", ward: str ="11"):
+def read_geopandas_data(province: str = "Lâm Đồng", district: str ="Đà Lạt", ward: str ="12"):
     """
         get data point columns: ((x1,y1),,...)
     """
