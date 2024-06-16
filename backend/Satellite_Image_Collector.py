@@ -19,15 +19,25 @@ def check_json(key: str,data: json):
     return False
 
 def get_npy(data: json) -> np.ndarray:
-    mask_keys = ("province_mask", "district_mask", "ward_mask")
-    if all(check_json(key, data) for key in mask_keys):
-        root,flag = check_dir_tree(dir_tree= ["data","mask",data["province_mask"],data["district_mask"],data["ward_mask"]])
-    else:    
-        root,flag = check_dir_tree(dir_tree= ["data","mask",data["province"],data["district"],data["ward"]])
-    if flag:
-        mask = np.load(os.path.join(root,"mask.npy"))
-        return mask
-    return flag
+    anno_keys = ("province", "district", "ward")
+    if all(check_json(key, data) for key in anno_keys):
+        mask_keys = ("province_mask", "district_mask", "ward_mask")
+        if all(check_json(key, data) for key in mask_keys):
+            root,flag = check_dir_tree(dir_tree= ["data","mask",data["province_mask"],data["district_mask"],data["ward_mask"]])
+        else:    
+            root,flag = check_dir_tree(dir_tree= ["data","mask",data["province"],data["district"],data["ward"]])
+        if flag:
+            mask = np.load(os.path.join(root,"mask.npy"))
+            return mask
+        return flag
+    else:
+        try:
+            root = os.path.join(data['mask'],"mask.npy").replace("\\","\\\\").replace("/","\\\\")
+            mask = np.load(root)
+            return mask
+        except:
+            # cant load mask
+            return False
 
 def is_point_inside_polygon(path,point):
     return path.contains_point(point)

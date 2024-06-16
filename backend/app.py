@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 import os
 from image_downloading import run, check_dir_tree
 from render_report import calculate_area, merging_row
-from Satellite_Image_Collector import get_custom_image, get_npy, save_npy, read_size
+from Satellite_Image_Collector import get_custom_image, get_npy, save_npy, read_size, check_json
 import json
 import numpy as np
 from PIL import Image
@@ -36,6 +36,11 @@ s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 # Enable CORS with specific origin and support credentials
 CORS(app, resources={r"/*": {"origins": os.getenv('FLASK_CORS_ORIGINS')}}, supports_credentials=True)
+def process_path(text: str):
+    parts = text.split('/')
+    if parts[-1] == "":
+        parts = parts[:-1]
+    return parts[-3], parts[-2], parts[-1]
 
 def createConnectDB():
     connection = None
@@ -267,40 +272,50 @@ def logout():
     response.set_cookie('tooken', '', expires=0)  # Remove the cookie
     return response
 
+
 def merge_large_img(data: json = {}):
     # Check tree
     if data == {}:
         root = "annotations"
         flag = True
     else:
-        root,flag = check_dir_tree(dir_tree= ["data","annotations", data['province'], data["district"],data["ward"]])
-    if flag:
-        size_path = root.replace("annotations","mask")
-        W, H = read_size(root=size_path)
+        anno_keys = ("province", "district", "ward")
+        if all(check_json(key, data) for key in anno_keys):
+            root,flag = check_dir_tree(dir_tree= ["data","annotations", data['province'], data["district"],data["ward"]])
+        else:
+            flag = True
+            root = data['annotations'].replace("\\","\\\\").replace("/","\\\\")
+            print(root)
+    try:
+        if flag:
+            size_path = root.replace("annotations","mask")
+            W, H = read_size(root=size_path)
 
-        index = []
-        for i in range(H,1, -1):
-            index.append([x for x in range(W*i-W, W*i)])
-        index.append(np.arange(W-1,-1,-1))
-        # index1=[i for i in range(56,64)]
-        # index2=[i for i in range(48,56)]
-        # index3=[i for i in range(40,48)]
-        # index4=[i for i in range(32,40)]
-        # index5=[i for i in range(24,32)]
-        # index6=[i for i in range(16,24)]
-        # index7=[i for i in range(8,16)]
-        # index8 = np.arange(7, -1, -1)
-        # index = [index1, index2, index3, index4, index5, index6, index7, index8]
-        big_images=merging_row(index[0], folder_path=root)
-        for i in index[1:]:
-            try:
-                image=merging_row(i, folder_path=root)
-                big_images = np.concatenate((big_images, image))
-            except:
-                image=merging_row(i, folder_path=root, flag=False)
-                big_images = np.concatenate((big_images, image))
-        return big_images
-    else:
+            index = []
+            for i in range(H,1, -1):
+                index.append([x for x in range(W*i-W, W*i)])
+            index.append(np.arange(W-1,-1,-1))
+            # index1=[i for i in range(56,64)]
+            # index2=[i for i in range(48,56)]
+            # index3=[i for i in range(40,48)]
+            # index4=[i for i in range(32,40)]
+            # index5=[i for i in range(24,32)]
+            # index6=[i for i in range(16,24)]
+            # index7=[i for i in range(8,16)]
+            # index8 = np.arange(7, -1, -1)
+            # index = [index1, index2, index3, index4, index5, index6, index7, index8]
+            big_images=merging_row(index[0], folder_path=root)
+            for i in index[1:]:
+                try:
+                    image=merging_row(i, folder_path=root)
+                    big_images = np.concatenate((big_images, image))
+                except:
+                    image=merging_row(i, folder_path=root, flag=False)
+                    big_images = np.concatenate((big_images, image))
+            return big_images
+        else:
+            return False
+    except:
         return False
 
 def get_area_total(big_images,mask):
@@ -340,7 +355,33 @@ def download_img():
 @app.route('/get_area', methods=['POST','GET'])
 # @login_required
 def get_area():
-    params = request.args.to_dict()
+    p_province  = request.json['province']
+    p_district  = request.json['district']
+    p_ward      = request.json['ward']
+    annotations = request.json['urlAnnotations']
+    mask = request.json['urlMask']
+    # annotations = "data/annotation/Lâm Đồng/Đà Lạt/6"
+    province, district, ward = process_path(text=annotations)
+
+    # dont wanna change, just comment mask
+    # mask = "data/mask/Lâm Đồng/Đà Lạt/6"
+    province_mask, district_mask, ward_mask = process_path(text=mask)
+    data = {
+        'province': province,
+        'district': district,
+        'ward': ward,
+        'province_mask': province_mask,
+        'district_mask': district_mask,
+        'ward_mask': ward_mask
+    }
+
+    # data        = {
+    #     'province': p_province,
+    #     'district': p_district,
+    #     'ward'    : p_ward,
+    #     'lst_img' : [0]
+    # }
+    print('data',data)
     if params:
         data = {key: value for key, value in params.items()}
         mask = get_npy(data=data)
