@@ -315,8 +315,9 @@ const Geography = () => {
                 {responseText && (
                     <Row gutter={16}>
                         <Col span={24}>
+                            <hr style={{ backgroundColor: '#fff' }} />
                             <div className='response-text'>
-                                <h2 style={{ fontSize: '30px', textAlign: 'center', marginTop: '20px' }}>{responseText}</h2>
+                                <h2 style={{ fontSize: '20px', textAlign: 'center', marginTop: '50px' }}>Link: {responseText}</h2>
                             </div>
                         </Col>
                     </Row>
