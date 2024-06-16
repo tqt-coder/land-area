@@ -12,12 +12,12 @@ import {
   Row,
 } from "reactstrap";
 import DashBoardService from "../services/dashboardService";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { chartExample1, chartExample4 } from "variables/charts.js";
-import { useLocation } from "react-router-dom";
+
 import { PropagateLoader } from "react-spinners";
 
-function useChartData(_code, _wardName, _districtName, _cityName) {
+function useChartData(_urlLabel,_urlMask) {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [imgUrl, setImgUrl] = useState([]);
@@ -28,7 +28,9 @@ function useChartData(_code, _wardName, _districtName, _cityName) {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const result = await DashBoardService.calcArea(_wardName, _districtName, _cityName, navigate);
+        const result = await DashBoardService.calcArea(
+          _urlLabel,_urlMask,navigate
+        );
         if (result && result.arr) {
           const areaSum = result.arr.reduce(
             (accumulator, currentValue) => accumulator + currentValue,
@@ -36,7 +38,7 @@ function useChartData(_code, _wardName, _districtName, _cityName) {
           );
           setTotalArea(Math.round(areaSum * 10000) / 10000);
           setData(result.arr);
-          setImgUrl(result.url)
+          setImgUrl(result.url);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -46,9 +48,7 @@ function useChartData(_code, _wardName, _districtName, _cityName) {
     };
 
     fetchData();
-
-    return;
-  }, [_cityName, _code, _districtName, _wardName, navigate]);
+  }, [_urlLabel,_urlMask, navigate]);
 
   return { data, totalArea, loading, imgUrl };
 }
@@ -57,13 +57,21 @@ function Dashboard() {
   const [bigChartData, setBigChartData] = useState("data1");
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const selectedWard = queryParams.get("ward") || "Label"; // Default value if not found
-  const wardCode = queryParams.get("wardCode"); // Default value if not found
-  const wardName = queryParams.get("wardName"); // Default value if not found
-  const districtName = queryParams.get("districtName"); // Default value if not found
-  const cityName = queryParams.get("cityName"); // Default value if not found
-  console.log('pa ', wardName);
-  const { data, totalArea, loading, imgUrl } = useChartData(wardCode, wardName, districtName, cityName);
+
+  const selectedWard = decodeURIComponent(
+    queryParams.get("ward") || "Label"
+  );
+  const urlLabel = decodeURIComponent(
+    queryParams.get("url_label")
+  );
+  const urlMask = decodeURIComponent(
+    queryParams.get("url_mask")
+  );
+
+  const { data, totalArea, loading, imgUrl } = useChartData(
+    urlLabel,
+    urlMask
+  );
 
   const handleBgChartData = (name) => setBigChartData(name);
 

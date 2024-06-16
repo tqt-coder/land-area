@@ -29,10 +29,40 @@ instance.interceptors.request.use(
 );
 
 const LocationService = {
-  /**
-   * Get all provinces in Vietnam
-   * @returns {Promise<{idProvince: string, name: string, id: string}[]>}
-   */
+  downloadImage: async (_province, _district, _ward,navigate) => {
+    try {
+      const response = await axios.post(`${baseURL}/download_img`, {
+        province : _province,
+        district : _district,
+        ward: _ward
+      });
+      console.log(response)
+      if(response.data.status !== 200){
+        alert("Please login");
+        navigate("/login"); 
+      }
+      console.log(response);
+      return response.data; // Return the data from the response
+    } catch (error) {
+      // Handle any errors that occur during the API call
+      console.error("Error calling /provinces endpoint:", error);
+      alert("Please login");
+      navigate("/login");
+    }
+  },
+  inferenceImage: async (url_mask, url_fordel_img,navigate) => {
+    try {
+      // Make a GET request to the /provinces endpoint
+      // const response = await instance.get("/provinces");
+      console.log(url_mask, url_fordel_img,navigate);
+      return 'response.data'; // Return the data from the response
+    } catch (error) {
+      // Handle any errors that occur during the API call
+      console.error("Error calling /provinces endpoint:", error);
+      alert("Please login");
+      navigate("/login");
+    }
+  },
   getProvincesOrCities: async (navigate) => {
     try {
       // Make a GET request to the /provinces endpoint

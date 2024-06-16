@@ -27,3 +27,13 @@
   box-shadow: 0 2px 0 rgba(5, 145, 255, 0.1);
   opacity: 0.5;
 }
+
+.btn-yellow{
+  color: #000;
+  background: #ecdb3b;
+}
+
+.btn-green{
+  color: #000;
+  background: #21a548;
+}

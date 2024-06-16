@@ -333,12 +333,18 @@ def sub(image: np.ndarray,x1:int, y1:int, x2:int, y2:int)-> np.ndarray:
 ## Download Images
 @app.route("/download_img", methods=['POST'])
 def download_img():
-    params = request.args
-    if params:
-        data = {
-            key: [int(x) for x in params.getlist(key)] if key == 'lst_img' else params[key]
-            for key in params
-        }
+    province = request.json['province']
+    district = request.json['district']
+    ward = request.json['ward']
+    data = {
+        'province': province,
+        'district': district,
+        'ward': ward,
+        'lst_img': [1]
+    }
+    print('data',data)
+    if province is not None or district is not None or ward is not None:
+        str_url = 'FinalProject/backend/data/images' + province + '/' + district + '/' + ward
 
         geo_series, G = get_custom_image(data=data)
         if "lst_img" not in data or data["lst_img"]==[]:
@@ -348,19 +354,23 @@ def download_img():
                 run(idx=data['lst_img'][idx],bound=bound.bounds, data=data)
             except:
                 run(idx=idx,bound=bound.bounds,data=data)
-        return "Done"
+        response = jsonify({ 'message': str_url,'status': 200})
+        print({ 'message': str_url,'status': 200})
+        response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
     else:
-        return "You doesn't send ward information!"
+        response = jsonify({ 'message': '','status': 400})
+        print({ 'message': '','status': 400})
+        response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
 
 @app.route('/get_area', methods=['POST','GET'])
-# @login_required
+@login_required
 def get_area():
     annotations = request.json['urlAnnotations']
     mask = request.json['urlMask']
-    # annotations = "data/annotation/Lâm Đồng/Đà Lạt/6"
-
-    # dont wanna change, just comment mask
-    # mask = "data/mask/Lâm Đồng/Đà Lạt/6"
     data = {
         'annotations': annotations,
         'mask': mask
@@ -405,7 +415,7 @@ def get_area():
 
                 # response = jsonify({"img":big_images.tolist(), 'area': serializable_area,'status': 200, 'image_url': image_url})
             response = jsonify({ 'area': serializable_area,'status': 200, 'image_url': image_url})
-            print(response)
+            print({ 'area': serializable_area,'status': 200, 'image_url': image_url})
             response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
             response.headers.add('Access-Control-Allow-Credentials', 'true')
             return response

@@ -23,13 +23,11 @@ instance.interceptors.request.use(config => {
 });
 
 const DashBoardService = {
-  calcArea: async (_wardName, _districtName, _cityName, navigate) => {
+  calcArea: async (_urlLabel,_urlMask, navigate) => {
     try {
-      console.log(_wardName,_districtName,_cityName)
-      // const response = await instance.get(`${baseURL}/get_area?ward=${_wardName}&&district=${_districtName}&&province=${_cityName}`);
       const response = await axios.post(`${baseURL}/get_area`, {
-        urlAnnotations : "data/annotations/Lâm Đồng/Đà Lạt/6",
-        urlMask : "data/mask/Lâm Đồng/Đà Lạt/6"
+        urlAnnotations : _urlLabel,
+        urlMask : _urlMask
       });
       console.log(response)
       if(response.data.status !== 200){
