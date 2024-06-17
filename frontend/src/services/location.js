@@ -31,7 +31,7 @@ instance.interceptors.request.use(
 const LocationService = {
   downloadImage: async (_province, _district, _ward,navigate) => {
     try {
-      const response = await axios.post(`${baseURL}/download_img`, {
+      const response = await instance.post(`${baseURL}/download_img`, {
         province : _province,
         district : _district,
         ward: _ward
