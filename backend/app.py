@@ -340,12 +340,13 @@ def download_img():
         'province': province,
         'district': district,
         'ward': ward,
-        'lst_img': [1]
+        'lst_img': []
     }
     print('data',data)
     if province is not None or district is not None or ward is not None:
-        str_url = 'FinalProject/backend/data/images' + province + '/' + district + '/' + ward
-
+        current_dir = os.getcwd()
+        str_url = os.path.join(current_dir, 'data', 'images', province, district, ward)
+        print(f'The constructed URL is: {str_url}')
         geo_series, G = get_custom_image(data=data)
         if "lst_img" not in data or data["lst_img"]==[]:
             save_npy(geo_series,G, data)

@@ -259,7 +259,7 @@ const Geography = () => {
                     <Col span={8}>
                         <Form.Item className='btn-submit'>
                             <Button type='primary2' className='btn-yellow' size='large' htmlType='submit'>
-                                Calc Area
+                                Download Image
                             </Button>
                         </Form.Item>
                     </Col>
@@ -278,7 +278,7 @@ const Geography = () => {
                                 size='large'
                                 onClick={handleInspectRegion}
                             >
-                                Inspect Region
+                                Calc Area
                             </Button>
                         </Form.Item>
                     </Col>
