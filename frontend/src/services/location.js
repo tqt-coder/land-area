@@ -47,7 +47,7 @@ const LocationService = {
       // Handle any errors that occur during the API call
       console.error("Error calling /provinces endpoint:", error);
       alert("Please login");
-      navigate("/login");
+      navigate("/admin/login");
     }
   },
   inferenceImage: async (url_mask, url_fordel_img,navigate) => {
