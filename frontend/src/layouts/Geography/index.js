@@ -259,7 +259,7 @@ const Geography = () => {
                     <Col span={8}>
                         <Form.Item className='btn-submit'>
                             <Button type='primary2' className='btn-yellow' size='large' htmlType='submit'>
-                                Download Image
+                                Calc Area
                             </Button>
                         </Form.Item>
                     </Col>
