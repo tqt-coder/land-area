@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from 'js-cookie';
 
 // Set the base URL for the axios instance
-const baseURL = 'http://127.0.0.1:5000';
+const baseURL = "http://52.231.138.94";
 
 const instance = axios.create({
   baseURL,
