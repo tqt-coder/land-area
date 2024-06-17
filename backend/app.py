@@ -369,66 +369,74 @@ def download_img():
 @app.route('/get_area', methods=['POST','GET'])
 @login_required
 def get_area():
-    annotations = request.json['urlAnnotations']
-    mask = request.json['urlMask']
-    data = {
-        'annotations': annotations,
-        'mask': mask
-    }
-    print('data',data)
-    if annotations is not None or mask is not None:
-        # data = {key: value for key, value in params.items()}
-        mask = get_npy(data=data)
-        big_images = merge_large_img(data=data)
-        # Change link img
-        if isinstance(mask, np.ndarray) and isinstance(big_images, np.ndarray):
-            new_mask = np.rot90(mask, k=1)
-            if new_mask.shape == big_images.shape:
-                resized_mask = new_mask
+    try:
+        annotations = request.json['urlAnnotations']
+        mask = request.json['urlMask']
+        data = {
+            'annotations': annotations,
+            'mask': mask
+        }
+        print('data',data)
+        if annotations is not None or mask is not None:
+            # data = {key: value for key, value in params.items()}
+            mask = get_npy(data=data)
+            big_images = merge_large_img(data=data)
+            # Change link img
+            if isinstance(mask, np.ndarray) and isinstance(big_images, np.ndarray):
+                new_mask = np.rot90(mask, k=1)
+                if new_mask.shape == big_images.shape:
+                    resized_mask = new_mask
+                else:
+                    new_mask_shape = new_mask.shape
+                    # Resize new_mask to match big_images if dimensions differ
+                    resized_big_images = cv2.resize(big_images, (new_mask_shape[1], new_mask_shape[0]))
+
+                resized_big_images[new_mask == False] = False 
+                area = calculate_area(image=resized_big_images, mask=new_mask)
+                serializable_area = {int(k): v for k, v in area.items()}
+
+                    # Serialize the dictionary to JSON
+                    # json_data = json.dumps(serializable_area)
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                filename = f'land_img_{timestamp}.jpg'
+                plt.imshow(resized_big_images)
+                plt.axis('off')
+    
+                    # Construct the file path for saving the image in the static/img directory
+                file_path = os.path.join('static', 'img', filename)
+
+                    # Save the displayed image
+                plt.savefig(file_path, bbox_inches='tight', pad_inches=0, transparent=True)
+
+                # Close the plot to release resources
+                plt.close()
+
+                    
+                image_url = url_for('static', filename='img/' + filename,_external=True)
+
+                    # response = jsonify({"img":big_images.tolist(), 'area': serializable_area,'status': 200, 'image_url': image_url})
+                response = jsonify({ 'area': serializable_area,'status': 200, 'image_url': image_url})
+                print({ 'area': serializable_area,'status': 200, 'image_url': image_url})
+                response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+                response.headers.add('Access-Control-Allow-Credentials', 'true')
+                return response
             else:
-                new_mask_shape = new_mask.shape
-                # Resize new_mask to match big_images if dimensions differ
-                resized_big_images = cv2.resize(big_images, (new_mask_shape[1], new_mask_shape[0]))
-
-            resized_big_images[new_mask == False] = False 
-            area = calculate_area(image=resized_big_images, mask=new_mask)
-            serializable_area = {int(k): v for k, v in area.items()}
-
-                # Serialize the dictionary to JSON
-                # json_data = json.dumps(serializable_area)
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            filename = f'land_img_{timestamp}.jpg'
-            plt.imshow(resized_big_images)
-            plt.axis('off')
- 
-                # Construct the file path for saving the image in the static/img directory
-            file_path = os.path.join('static', 'img', filename)
-
-                # Save the displayed image
-            plt.savefig(file_path, bbox_inches='tight', pad_inches=0, transparent=True)
-
-            # Close the plot to release resources
-            plt.close()
-
-                
-            image_url = url_for('static', filename='img/' + filename,_external=True)
-
-                # response = jsonify({"img":big_images.tolist(), 'area': serializable_area,'status': 200, 'image_url': image_url})
-            response = jsonify({ 'area': serializable_area,'status': 200, 'image_url': image_url})
-            print({ 'area': serializable_area,'status': 200, 'image_url': image_url})
-            response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
-            response.headers.add('Access-Control-Allow-Credentials', 'true')
-            return response
+                response = jsonify({ 'area': None,'status': 400,'message':'Link does not exist'})
+                response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+                response.headers.add('Access-Control-Allow-Credentials', 'true')
+                return response
         else:
-            response = jsonify({ 'area': null,'status': 500})
+            response = jsonify({ 'area': None,'status': 400,'message':'Link does not exist'})
             response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
             response.headers.add('Access-Control-Allow-Credentials', 'true')
             return response
-    else:
-        response = jsonify({ 'area': null,'status': 500})
+    except Exception as e:
+        print('Error! Code: {c}, Message, {m}'.format(c = e.code, m = str(e)))
+        response = jsonify({ 'area': None,'message':str(e),'status': e.code, 'image_url': ''})
         response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
         response.headers.add('Access-Control-Allow-Credentials', 'true')
         return response
+
 
 @app.route('/get_inference', methods=['POST','GET'])
 @login_required
@@ -491,12 +499,12 @@ def get_inference():
             else:
                 return "Not having annotations or images!!!"
         else:
-            response = jsonify({ 'area': null,'status': 500})
+            response = jsonify({ 'area': None,'status': 500})
             response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
             response.headers.add('Access-Control-Allow-Credentials', 'true')
             return response
     else:
-        response = jsonify({ 'area': null,'status': 500})
+        response = jsonify({ 'area': None,'status': 500})
         response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
         response.headers.add('Access-Control-Allow-Credentials', 'true')
         return response

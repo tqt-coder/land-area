@@ -1,8 +1,9 @@
 import axios from "axios";
 import Cookies from 'js-cookie';
 
-//REACT_APP_{varname}, process.env.{var_name}
-const baseURL = 'http://127.0.0.1:5000'
+// Set the base URL for the axios instance
+const baseURL = 'http://127.0.0.1:5000';
+
 const instance = axios.create({
   baseURL,
   withCredentials: true, // Ensure that cookies are sent with requests
@@ -23,28 +24,38 @@ instance.interceptors.request.use(config => {
 });
 
 const DashBoardService = {
-  calcArea: async (_urlLabel,_urlMask, navigate) => {
+  calcArea: async (_urlLabel, _urlMask, navigate) => {
     try {
-      const response = await axios.post(`${baseURL}/get_area`, {
-        urlAnnotations : _urlLabel,
-        urlMask : _urlMask
+      // Ensure the request is a POST request and pass the body correctly
+      const response = await instance.post('/get_area', {
+        urlAnnotations: _urlLabel,
+        urlMask: _urlMask
       });
-      console.log(response)
-      if(response.data.status !== 200){
-        alert("Please login");
-        navigate("/login"); 
+
+      console.log(response);
+
+      if (response.data.status !== 200 && response.data.status !== 403) {
+        alert(response.data.message);
+        navigate("/admin/map");
       }
+      if (response.data.status === 403) {
+        alert("Please login");
+        navigate("/login");
+      }
+
       let xData = response.data.area;
       let arr;
-      if(xData){
+      if (xData) {
         arr = Object.values(xData);
         arr.shift();
       }
+
       let obj = {
         'arr': arr,
-        'url' : response.data.image_url
-      }
-      console.log('dashboard: ' , obj);
+        'url': response.data.image_url
+      };
+
+      console.log('dashboard: ', obj);
       return obj; // Return the data from the response
     } catch (error) {
       console.error("Error calling other API:", error);
