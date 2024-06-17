@@ -157,7 +157,7 @@ const Geography = () => {
             <h1>Find Regional Planning</h1>
             <hr style={{ backgroundColor: '#fff' }} />
             <Form layout='vertical' onFinish={handleSubmit(onSubmit)}>
-                <Row gutter={16} style={{ marginBottom: '25px' }}>
+                <Row gutter={16} style={{ marginBottom: '30px' }}>
                     <Col span={7}>
                         <Form.Item label='Province/City'>
                             <Controller
@@ -258,14 +258,14 @@ const Geography = () => {
                 <Row gutter={16} style={{ marginBottom: '100px' }}>
                     <Col span={8}>
                         <Form.Item className='btn-submit'>
-                            <Button type='primary' size='large' htmlType='submit'>
+                            <Button type='primary2' className='btn-yellow' size='large' htmlType='submit'>
                                 Download Image
                             </Button>
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item className='btn-submit'>
-                            <Button type='primary2' onClick={() => handleInference(watch())} className='btn-yellow' size='large'>
+                            <Button type='primary' onClick={() => handleInference(watch())}  size='large'>
                                 Inference Image
                             </Button>
                         </Form.Item>
@@ -289,7 +289,7 @@ const Geography = () => {
                                 <Controller
                                     name='url_label'
                                     control={control}
-                                    render={({ field }) => <input {...field} />}
+                                    render={({ field }) => <input {...field} className="css-input" placeholder='Please input your link folder label'/>}
                                 />
                             </Form.Item>
                         </Col>
@@ -298,7 +298,7 @@ const Geography = () => {
                                 <Controller
                                     name='url_mask'
                                     control={control}
-                                    render={({ field }) => <input {...field} />}
+                                    render={({ field }) => <input {...field} className="css-input" placeholder='Please input your link folder mask'/>}
                                 />
                             </Form.Item>
                         </Col>
@@ -307,7 +307,7 @@ const Geography = () => {
                                 <Controller
                                     name='url_fordel_img'
                                     control={control}
-                                    render={({ field }) => <input {...field} />}
+                                    render={({ field }) => <input {...field} className="css-input" placeholder='Please input your link folder image'/>}
                                 />
                             </Form.Item>
                         </Col>

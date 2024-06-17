@@ -11,6 +11,7 @@
 
 .btn-submit button {
   min-width: 120px;
+  font-weight: bold;
 }
 
 .image {
@@ -37,3 +38,24 @@
   color: #000;
   background: #21a548;
 }
+.css-input{
+  display: inline-block;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+.css-input:focus {
+  border-color: #40a9ff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(64, 169, 255, 0.5);
+}
+
+.css-input::placeholder {
+  color: #aaa;
+}
+
