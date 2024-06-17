@@ -117,7 +117,7 @@ const Geography = () => {
             const selectedWard = wards.find((item) => item.code === ward);
             const selectedDistrict = cities.find((item) => item.code === city);
             const selectedCity = provinces.find((item) => item.code === province);
-            const response = await LocationService.downloadImage(selectedCity.name, selectedDistrict.name, selectedWard.name);
+            const response = await LocationService.downloadImage(selectedCity.name, selectedDistrict.name, selectedWard.name, navigate);
 
             if (response.status === 200 && response.message) {
                 setResponseText(response.message);
@@ -137,7 +137,7 @@ const Geography = () => {
             return;
         }
         try {
-            const response = await LocationService.inferenceImage(url_mask, url_fordel_img);
+            const response = await LocationService.inferenceImage(url_mask, url_fordel_img,navigate);
             if (response.status === 200 &&  response.message) {
                 setResponseText(response.message);
             } else {
