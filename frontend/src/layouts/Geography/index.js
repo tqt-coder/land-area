@@ -117,7 +117,7 @@ const Geography = () => {
             const selectedWard = wards.find((item) => item.code === ward);
             const selectedDistrict = cities.find((item) => item.code === city);
             const selectedCity = provinces.find((item) => item.code === province);
-            const response = await LocationService.downloadImage(selectedCity.name, selectedDistrict.name, selectedWard.name);
+            const response = await LocationService.downloadImage(selectedCity.name, selectedDistrict.name, selectedWard.name,navigate);
 
             if (response.status === 200 && response.message) {
                 setResponseText(response.message);
@@ -131,13 +131,16 @@ const Geography = () => {
     };
 
     const handleInference = async (data) => {
-        const { url_mask, url_fordel_img } = data;
-        if (!url_mask || !url_fordel_img) {
-            alert('Please provide both URL mask and URL folder image.');
+        const { province, city, ward } = data;
+        if (!province || !city || !ward) {
+            alert('Please select province, city, and ward.');
             return;
         }
         try {
-            const response = await LocationService.inferenceImage(url_mask, url_fordel_img);
+            const selectedWard = wards.find((item) => item.code === ward);
+            const selectedDistrict = cities.find((item) => item.code === city);
+            const selectedCity = provinces.find((item) => item.code === province);
+            const response = await LocationService.inferenceImage(selectedCity.name, selectedDistrict.name, selectedWard.name,navigate);
             if (response.status === 200 &&  response.message) {
                 setResponseText(response.message);
             } else {
@@ -302,7 +305,7 @@ const Geography = () => {
                                 />
                             </Form.Item>
                         </Col>
-                        <Col span={7}>
+                        {/* <Col span={7}>
                             <Form.Item label='Link folder image'>
                                 <Controller
                                     name='url_fordel_img'
@@ -310,7 +313,7 @@ const Geography = () => {
                                     render={({ field }) => <input {...field} className="css-input" placeholder='Please input your link folder image'/>}
                                 />
                             </Form.Item>
-                        </Col>
+                        </Col> */}
                     </Row>
                 {responseText && (
                     <Row gutter={16}>

@@ -12,6 +12,7 @@ import os
 from image_downloading import run, check_dir_tree
 from render_report import calculate_area, merging_row
 from Satellite_Image_Collector import get_custom_image, get_npy, save_npy, read_size, check_json
+from inference import create_inference
 import json
 import numpy as np
 from PIL import Image
@@ -442,75 +443,18 @@ def get_area():
 @app.route('/get_inference', methods=['POST','GET'])
 @login_required
 def get_inference():
-    p_province  = request.args.get('province')
-    p_district  = request.args.get('district')
-    p_ward      = request.args.get('ward')
-    data        = {
-        'province': p_province,
-        'district': p_district,
-        'ward'    : p_ward,
-        'lst_img' : [0]
-    }
-    print('data',data)
+    p_province  = request.json('province')
+    p_district  = request.json('district')
+    p_ward      = request.json('ward')
     if data and ( p_province is not None or p_district is not None or ward is not None):
-        is_download_complete = download_img(data)
-        data2 = data
-        if is_download_complete:
-            # data = {key: value for key, value in params.items()}
-            mask = get_npy(data=data2)
-            big_images = merge_large_img(data=data2)
-            # Change link img
-            if isinstance(mask, np.ndarray) and isinstance(big_images, np.ndarray):
-                new_mask = np.rot90(mask, k=1)
-                if new_mask.shape == big_images.shape:
-                    resized_mask = new_mask
-                else:
-                    new_mask_shape = new_mask.shape
-                    # Resize new_mask to match big_images if dimensions differ
-                    resized_big_images = cv2.resize(big_images, (new_mask_shape[1], new_mask_shape[0]))  
-                resized_big_images[new_mask == False] = False
-                area = calculate_area(image=resized_big_images, mask=new_mask)
-                serializable_area = {int(k): v for k, v in area.items()}
-
-                # Serialize the dictionary to JSON
-                # json_data = json.dumps(serializable_area)
-                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-                filename = f'land_img_{timestamp}.jpg'
-                plt.imshow(resized_big_images)
-                plt.axis('off')
-
-                # Construct the file path for saving the image in the static/img directory
-                file_path = os.path.join('static', 'img', filename)
-
-                # Save the displayed image
-                plt.savefig(file_path, bbox_inches='tight', pad_inches=0, transparent=True)
-
-                # Close the plot to release resources
-                plt.close()
-
-                
-                image_url = url_for('static', filename='img/' + filename,_external=True)
-
-                # response = jsonify({"img":big_images.tolist(), 'area': serializable_area,'status': 200, 'image_url': image_url})
-                response = jsonify({ 'area': serializable_area,'status': 200, 'image_url': image_url})
-                print({ 'area': serializable_area,'status': 200, 'image_url': image_url})
-                response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
-                response.headers.add('Access-Control-Allow-Credentials', 'true')
-                return response
-            else:
-                return "Not having annotations or images!!!"
-        else:
-            response = jsonify({ 'area': None,'status': 500})
-            response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
-            response.headers.add('Access-Control-Allow-Credentials', 'true')
-            return response
-    else:
-        response = jsonify({ 'area': None,'status': 500})
+        result = create_inference(p_province,p_district,p_ward)
+        response = jsonify({ 'message': result,'status': 200})
+        print({ 'message': result,'status': 200})
         response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
         response.headers.add('Access-Control-Allow-Credentials', 'true')
         return response
-
-
+               
+            
 # import torch
 # from mmengine.model.utils import revert_sync_batchnorm
 # from mmseg.apis import init_model, inference_model, show_result_pyplot
