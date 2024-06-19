@@ -3,7 +3,7 @@ mysql-connector-python
 flask-cors
 Pillow
 matplotlib
-numpy
+numpy<2
 opencv-python
 secure-smtplib
 bcrypt

@@ -117,7 +117,7 @@ const Geography = () => {
             const selectedWard = wards.find((item) => item.code === ward);
             const selectedDistrict = cities.find((item) => item.code === city);
             const selectedCity = provinces.find((item) => item.code === province);
-            const response = await LocationService.downloadImage(selectedCity.name, selectedDistrict.name, selectedWard.name,navigate);
+            const response = await LocationService.downloadImage(selectedCity.name, selectedDistrict.name, selectedWard.name, navigate);
 
             if (response.status === 200 && response.message) {
                 setResponseText(response.message);

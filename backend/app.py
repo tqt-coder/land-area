@@ -333,6 +333,7 @@ def sub(image: np.ndarray,x1:int, y1:int, x2:int, y2:int)-> np.ndarray:
 
 ## Download Images
 @app.route("/download_img", methods=['POST'])
+@login_required
 def download_img():
     province = request.json['province']
     district = request.json['district']
