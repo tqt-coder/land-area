@@ -5,7 +5,6 @@ from mmseg.apis import init_model, inference_model, show_result_pyplot
 config_file = 'C:/Users/tuan/Downloads/aa/mmcv/mmsegmentation/configs/segformer/segformer_mit-b5_8xb2-160k_loveda-640x640.py'
 checkpoint_file = 'C:/Users/tuan/Downloads/segformer.pth'
 # build the model from a config file and a checkpoint file
-model = init_model(config_file, checkpoint_file, device='cpu')
 
 import os
 
@@ -13,7 +12,10 @@ import os
 def create_inference(province, district, ward):
     try:
         if not torch.cuda.is_available():
+            model = init_model(config_file, checkpoint_file, device='cpu')
             model = revert_sync_batchnorm(model)
+            current_dir = os.getcwd()
+
             folder_path = os.path.join(current_dir, 'data', 'images', province, district, ward)
             print(folder_path)
             # folder_path = 'str_url_annotations'
@@ -22,7 +24,6 @@ def create_inference(province, district, ward):
                 # print(filename)
                 # folder_name = 'Phuong 12'
                 result = inference_model(model, image_path)
-                current_dir = os.getcwd()
                 str_url = os.path.join(current_dir, 'data', 'annotations', province, district, ward)
                 savedir = f'{str_url}/'
                 vis_iamge = show_result_pyplot(model, image_path, result, save_dir =savedir ,out_file =savedir + filename,

@@ -342,7 +342,7 @@ def download_img():
         'province': province,
         'district': district,
         'ward': ward,
-        'lst_img': []
+        'lst_img': [1,2,3]
     }
     print('data',data)
     if province is not None or district is not None or ward is not None:
@@ -441,13 +441,13 @@ def get_area():
         return response
 
 
-@app.route('/get_inference', methods=['POST','GET'])
+@app.route('/get_inference', methods=['POST'])
 @login_required
 def get_inference():
-    p_province  = request.json('province')
-    p_district  = request.json('district')
-    p_ward      = request.json('ward')
-    if data and ( p_province is not None or p_district is not None or ward is not None):
+    p_province  = request.json['province']
+    p_district  = request.json['district']
+    p_ward      = request.json['ward']
+    if ( p_province is not None or p_district is not None or ward is not None):
         result = create_inference(p_province,p_district,p_ward)
         response = jsonify({ 'message': result,'status': 200})
         print({ 'message': result,'status': 200})

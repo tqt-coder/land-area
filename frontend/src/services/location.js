@@ -47,12 +47,12 @@ const LocationService = {
       // Handle any errors that occur during the API call
       console.error("Error calling /provinces endpoint:", error);
       alert("Please login");
-      navigate("/login");
+      navigate("/admin/login");
     }
   },
   inferenceImage: async (_province, _district, _ward,navigate) => {
     try {
-      const response = await instance.post(`get_inference`, {
+      const response = await instance.post('/get_inference', {
         province : _province,
         district : _district,
         ward: _ward
