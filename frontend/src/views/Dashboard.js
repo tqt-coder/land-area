@@ -81,14 +81,7 @@ function Dashboard() {
 
   const pieChart = useMemo(
     () => ({
-      labels: [
-        "Forest_Land",
-        "Road",
-        "Water",
-        "Agriculture",
-        "Building",
-        "Barren",
-      ],
+      labels: ["Background","Building", "Road", "Water","Barren","Forest_Land","Agriculture"],
       datasets: [
         {
           data: data,
@@ -99,6 +92,7 @@ function Dashboard() {
             "rgba(75, 192, 192, 0.2)",
             "rgba(153, 102, 255, 0.2)",
             "rgba(255, 159, 64, 0.2)",
+            "rgba(89, 162, 145, 1)",
           ],
           borderColor: [
             "rgba(255, 99, 132, 1)",
@@ -107,6 +101,7 @@ function Dashboard() {
             "rgba(75, 192, 192, 1)",
             "rgba(153, 102, 255, 1)",
             "rgba(255, 159, 64, 1)",
+            "rgba(89, 162, 145, 1)",
           ],
           borderWidth: 1,
         },
@@ -210,14 +205,7 @@ function Dashboard() {
                 <div className="chart-area">
                   <Bar
                     data={{
-                      labels: [
-                        "Forest_Land",
-                        "Road",
-                        "Water",
-                        "Agriculture",
-                        "Building",
-                        "Barren",
-                      ],
+                      labels: ["Background","Building", "Road", "Water","Barren","Forest_Land","Agriculture"],
                       datasets: [
                         {
                           label: selectedWard,
@@ -229,6 +217,7 @@ function Dashboard() {
                             "rgba(75, 192, 192, 0.2)",
                             "rgba(153, 102, 255, 0.2)",
                             "rgba(255, 159, 64, 0.2)",
+                            "rgba(89, 162, 145, 1)",
                           ],
                           borderColor: [
                             "rgba(255, 99, 132, 1)",
@@ -237,6 +226,7 @@ function Dashboard() {
                             "rgba(75, 192, 192, 1)",
                             "rgba(153, 102, 255, 1)",
                             "rgba(255, 159, 64, 1)",
+                            "rgba(89, 162, 145, 1)",
                           ],
                           borderWidth: 1,
                         },
@@ -260,14 +250,7 @@ function Dashboard() {
                 <div className="chart-area">
                   <Line
                     data={{
-                      labels: [
-                        "Forest_Land",
-                        "Road",
-                        "Water",
-                        "Agriculture",
-                        "Building",
-                        "Barren",
-                      ],
+                      labels: ["Background","Building", "Road", "Water","Barren","Forest_Land","Agriculture"],
                       datasets: [
                         {
                           label: selectedWard,
