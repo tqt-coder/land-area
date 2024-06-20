@@ -92,7 +92,7 @@ function Admin(props) {
               routes={routes}
               logo={{
                 outterLink: "https://hcmute.edu.vn/",
-                text: "UTE",
+                text: "ResStaVietMap",
                 imgSrc: logo,
               }}
               toggleSidebar={toggleSidebar}
