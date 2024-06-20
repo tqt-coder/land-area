@@ -342,7 +342,7 @@ def download_img():
         'province': province,
         'district': district,
         'ward': ward,
-        'lst_img': [1,2,3]
+        'lst_img': []
     }
     print('data',data)
     if province is not None or district is not None or ward is not None:

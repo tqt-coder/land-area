@@ -4,12 +4,14 @@ import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import LocationService from '../../services/location';
 import './styles.css';
+import { PropagateLoader } from "react-spinners";
 
 const Geography = () => {
     const [provinces, setProvinces] = useState([]);
     const [cities, setCities] = useState([]);
     const [wards, setWards] = useState([]);
     const [responseText, setResponseText] = useState('');
+    const [loading, setLoading] = useState(false); // Added loading state
     const navigate = useNavigate();
     const { control, setValue, watch, handleSubmit } = useForm({
         defaultValues: {
@@ -90,6 +92,7 @@ const Geography = () => {
             return;
         }
         try {
+            setLoading(true); // Start loading
             const selectedWard = wards.find((item) => item.code === ward);
             if (!selectedWard) {
                 alert('Selected ward not found.');
@@ -104,6 +107,8 @@ const Geography = () => {
             navigate(`/admin/dashboard?${queryParams.toString()}`);
         } catch (error) {
             setResponseText(error.message);
+        } finally {
+            setLoading(false); // End loading
         }
     };
 
@@ -114,6 +119,7 @@ const Geography = () => {
             return;
         }
         try {
+            setLoading(true); // Start loading
             const selectedWard = wards.find((item) => item.code === ward);
             const selectedDistrict = cities.find((item) => item.code === city);
             const selectedCity = provinces.find((item) => item.code === province);
@@ -127,6 +133,8 @@ const Geography = () => {
         } catch (error) {
             alert(error)
             setResponseText(error);
+        } finally {
+            setLoading(false); // End loading
         }
     };
 
@@ -137,6 +145,7 @@ const Geography = () => {
             return;
         }
         try {
+            setLoading(true); // Start loading
             const selectedWard = wards.find((item) => item.code === ward);
             const selectedDistrict = cities.find((item) => item.code === city);
             const selectedCity = provinces.find((item) => item.code === province);
@@ -148,12 +157,24 @@ const Geography = () => {
             }
         } catch (error) {
             setResponseText(error.message);
+        } finally {
+            setLoading(false); // End loading
         }
     };
 
     const onSubmit = (data) => {
         handleDownloadImage(data);
     };
+
+    if (loading) {
+        return (
+          <div className="content">
+            <div className="content__spinner">
+              <PropagateLoader color="#ff3d00" size={30} />
+            </div>
+          </div>
+        );
+      }
 
     return (
         <div className='content'>
@@ -286,35 +307,35 @@ const Geography = () => {
                         </Form.Item>
                     </Col>
                 </Row>
-                    <Row gutter={16}>
-                        <Col span={7}>
-                            <Form.Item label='Link folder label'>
-                                <Controller
-                                    name='url_label'
-                                    control={control}
-                                    render={({ field }) => <input {...field} className="css-input" placeholder='Please input your link folder label'/>}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={7}>
-                            <Form.Item label='Link folder mask'>
-                                <Controller
-                                    name='url_mask'
-                                    control={control}
-                                    render={({ field }) => <input {...field} className="css-input" placeholder='Please input your link folder mask'/>}
-                                />
-                            </Form.Item>
-                        </Col>
-                        {/* <Col span={7}>
-                            <Form.Item label='Link folder image'>
-                                <Controller
-                                    name='url_fordel_img'
-                                    control={control}
-                                    render={({ field }) => <input {...field} className="css-input" placeholder='Please input your link folder image'/>}
-                                />
-                            </Form.Item>
-                        </Col> */}
-                    </Row>
+                <Row gutter={16}>
+                    <Col span={7}>
+                        <Form.Item label='Link folder label'>
+                            <Controller
+                                name='url_label'
+                                control={control}
+                                render={({ field }) => <input {...field} className="css-input" placeholder='Please input your link folder label'/>}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={7}>
+                        <Form.Item label='Link folder mask'>
+                            <Controller
+                                name='url_mask'
+                                control={control}
+                                render={({ field }) => <input {...field} className="css-input" placeholder='Please input your link folder mask'/>}
+                            />
+                        </Form.Item>
+                    </Col>
+                    {/* <Col span={7}>
+                        <Form.Item label='Link folder image'>
+                            <Controller
+                                name='url_fordel_img'
+                                control={control}
+                                render={({ field }) => <input {...field} className="css-input" placeholder='Please input your link folder image'/>}
+                            />
+                        </Form.Item>
+                    </Col> */}
+                </Row>
                 {responseText && (
                     <Row gutter={16}>
                         <Col span={24}>
