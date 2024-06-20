@@ -373,14 +373,17 @@ def download_img():
 @login_required
 def get_area():
     try:
-        annotations = request.json['urlAnnotations']
-        mask = request.json['urlMask']
+        province = request.json['province']
+        district = request.json['district']
+        ward = request.json['ward']
         data = {
-            'annotations': annotations,
-            'mask': mask
+            'province': province,
+            'district': district,
+            'ward': ward,
+            'lst_img': []
         }
         print('data',data)
-        if annotations is not None or mask is not None:
+        if province is not None or district is not None or ward is not None:
             # data = {key: value for key, value in params.items()}
             mask = get_npy(data=data)
             big_images = merge_large_img(data=data)

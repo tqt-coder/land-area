@@ -81,11 +81,11 @@ const Geography = () => {
     }, []);
 
     const handleInspectRegion = async () => {
-        const { url_label, url_mask } = watch();
-        if (!url_label || !url_mask) {
-            alert('Please provide both URL label and URL mask.');
-            return;
-        }
+        // const { url_label, url_mask } = watch();
+        // if (!url_label || !url_mask) {
+        //     alert('Please provide both URL label and URL mask.');
+        //     return;
+        // }
         const { province, city, ward } = watch(); // Get form data
         if (!province || !city || !ward) {
             alert('Please select province, city, and ward.');
@@ -94,14 +94,14 @@ const Geography = () => {
         try {
             setLoading(true); // Start loading
             const selectedWard = wards.find((item) => item.code === ward);
-            if (!selectedWard) {
-                alert('Selected ward not found.');
-                return;
-            }
+            const selectedDistrict = cities.find((item) => item.code === city);
+            const selectedCity = provinces.find((item) => item.code === province);
+
             const queryParams = new URLSearchParams();
             queryParams.set('ward', encodeURIComponent(selectedWard.full_name));
-            queryParams.set('url_label', encodeURIComponent(url_label));
-            queryParams.set('url_mask', encodeURIComponent(url_mask));
+            queryParams.set('ward_code', encodeURIComponent(selectedWard.name));
+            queryParams.set('district_code', encodeURIComponent(selectedDistrict.name));
+            queryParams.set('city_code', encodeURIComponent(selectedCity.name));
             
             // Navigate to dashboard with encoded parameters
             navigate(`/admin/dashboard?${queryParams.toString()}`);
@@ -308,7 +308,7 @@ const Geography = () => {
                     </Col>
                 </Row>
                 <Row gutter={16}>
-                    <Col span={7}>
+                    {/* <Col span={7}>
                         <Form.Item label='Link folder label'>
                             <Controller
                                 name='url_label'
@@ -325,7 +325,7 @@ const Geography = () => {
                                 render={({ field }) => <input {...field} className="css-input" placeholder='Please input your link folder mask'/>}
                             />
                         </Form.Item>
-                    </Col>
+                    </Col> */}
                     {/* <Col span={7}>
                         <Form.Item label='Link folder image'>
                             <Controller

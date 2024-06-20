@@ -1,19 +1,15 @@
-FROM python:latest
+FROM python:3.9-slim
 
 WORKDIR /app
 
 COPY requirements.txt requirements.txt
 
-# Install necessary packages and clean up cache
 RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6 && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip and install Python dependencies
 RUN pip3 install --upgrade pip && pip3 install -r requirements.txt
 
-# Copy the application code
 COPY . /app
 
-# Expose the port
 EXPOSE 80
 
 # Run the application
