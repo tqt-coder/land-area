@@ -20,6 +20,15 @@ import matplotlib.pyplot as plt
 from werkzeug.datastructures import ImmutableMultiDict
 import cv2
 import torch
+from mmengine.model.utils import revert_sync_batchnorm
+from mmseg.apis import init_model, inference_model, show_result_pyplot
+config_file = 'segformer_mit-b5_8xb2-160k_loveda-640x640.py'
+checkpoint_file = 'segformer.pth'
+# build the model from a config file and a checkpoint file
+model = init_model(config_file, checkpoint_file, device='cpu')
+if not torch.cuda.is_available():
+    model = revert_sync_batchnorm(model)
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -461,14 +470,6 @@ def get_area():
                
             
 # import torch
-from mmengine.model.utils import revert_sync_batchnorm
-from mmseg.apis import init_model, inference_model, show_result_pyplot
-config_file = 'segformer_mit-b5_8xb2-160k_loveda-640x640.py'
-checkpoint_file = 'segformer.pth'
-# build the model from a config file and a checkpoint file
-model = init_model(config_file, checkpoint_file, device='cpu')
-if not torch.cuda.is_available():
-    model = revert_sync_batchnorm(model)
 
 @app.route('/get_inference', methods=['POST'])
 @login_required
@@ -481,7 +482,7 @@ def get_inference():
         'district'  : p_district,
         'ward'      : p_ward
     }
-    if ( p_province is not None or p_district is not None or ward is not None):
+    if ( p_province is not None or p_district is not None or p_ward is not None):
         try:
             # data = {key: value for key, value in params.items()}
             root, flag = check_dir_tree(["data","images",data["province"],data["district"],data["ward"]])
