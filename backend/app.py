@@ -379,7 +379,7 @@ def download_img():
             response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
             response.headers.add('Access-Control-Allow-Credentials', 'true')
             return response
-     except Exception as e:
+    except Exception as e:
         print('Error! Code: {c}, Message, {m}'.format(c = e.code, m = str(e)))
         response = jsonify({ 'area': None,'message':str(e),'status': e.code, 'image_url': ''})
         response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
