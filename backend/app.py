@@ -345,36 +345,43 @@ def sub(image: np.ndarray,x1:int, y1:int, x2:int, y2:int)-> np.ndarray:
 @app.route("/download_img", methods=['POST'])
 @login_required
 def download_img():
-    province = request.json['province']
-    district = request.json['district']
-    ward = request.json['ward']
-    data = {
-        'province': province,
-        'district': district,
-        'ward': ward,
-        'lst_img': []
-    }
-    print('data',data)
-    if province is not None or district is not None or ward is not None:
-        current_dir = os.getcwd()
-        str_url = os.path.join(current_dir, 'data', 'images', province, district, ward)
-        print(f'The constructed URL is: {str_url}')
-        geo_series, G = get_custom_image(data=data)
-        if "lst_img" not in data or data["lst_img"]==[]:
-            save_npy(geo_series,G, data)
-        for idx, bound in enumerate(geo_series):
-            try:
-                run(idx=data['lst_img'][idx],bound=bound.bounds, data=data)
-            except:
-                run(idx=idx,bound=bound.bounds,data=data)
-        response = jsonify({ 'message': str_url,'status': 200})
-        print({ 'message': str_url,'status': 200})
-        response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
-        return response
-    else:
-        response = jsonify({ 'message': '','status': 400})
-        print({ 'message': '','status': 400})
+    try:
+        province = request.json['province']
+        district = request.json['district']
+        ward = request.json['ward']
+        data = {
+            'province': province,
+            'district': district,
+            'ward': ward,
+            'lst_img': []
+        }
+        print('data',data)
+        if province is not None or district is not None or ward is not None:
+            current_dir = os.getcwd()
+            str_url = os.path.join(current_dir, 'data', 'images', province, district, ward)
+            print(f'The constructed URL is: {str_url}')
+            geo_series, G = get_custom_image(data=data)
+            if "lst_img" not in data or data["lst_img"]==[]:
+                save_npy(geo_series,G, data)
+            for idx, bound in enumerate(geo_series):
+                try:
+                    run(idx=data['lst_img'][idx],bound=bound.bounds, data=data)
+                except:
+                    run(idx=idx,bound=bound.bounds,data=data)
+            response = jsonify({ 'message': str_url,'status': 200})
+            print({ 'message': str_url,'status': 200})
+            response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+            return response
+        else:
+            response = jsonify({ 'message': '','status': 400})
+            print({ 'message': '','status': 400})
+            response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+            return response
+     except Exception as e:
+        print('Error! Code: {c}, Message, {m}'.format(c = e.code, m = str(e)))
+        response = jsonify({ 'area': None,'message':str(e),'status': e.code, 'image_url': ''})
         response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
         response.headers.add('Access-Control-Allow-Credentials', 'true')
         return response
