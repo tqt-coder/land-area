@@ -106,7 +106,7 @@ function UserProfile() {
                     />
                     <h4 className="title">Lecturer</h4>
                   </a>
-                  <p className="description">Master.NXXXX</p>
+                  <p className="description">Master</p>
                 </div>
               </CardBody>
               <CardFooter>

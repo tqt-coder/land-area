@@ -142,3 +142,4 @@ backend/docs/_build/
 backend/mask.npy
 backend/annotations/
 backend/data/mask
+backend/*.pth

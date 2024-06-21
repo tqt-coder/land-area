@@ -12,13 +12,14 @@ import os
 from image_downloading import run, check_dir_tree
 from render_report import calculate_area, merging_row
 from Satellite_Image_Collector import get_custom_image, get_npy, save_npy, read_size, check_json
-from inference import create_inference
+# from inference import create_inference
 import json
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 from werkzeug.datastructures import ImmutableMultiDict
 import cv2
+import torch
 # Load environment variables from .env file
 load_dotenv()
 
@@ -444,51 +445,81 @@ def get_area():
         return response
 
 
+# @app.route('/get_inference', methods=['POST'])
+# @login_required
+# def get_inference():
+#     p_province  = request.json['province']
+#     p_district  = request.json['district']
+#     p_ward      = request.json['ward']
+#     if ( p_province is not None or p_district is not None or ward is not None):
+#         result = create_inference(p_province,p_district,p_ward)
+#         response = jsonify({ 'message': result,'status': 200})
+#         print({ 'message': result,'status': 200})
+#         response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+#         response.headers.add('Access-Control-Allow-Credentials', 'true')
+#         return response
+               
+            
+# import torch
+from mmengine.model.utils import revert_sync_batchnorm
+from mmseg.apis import init_model, inference_model, show_result_pyplot
+config_file = 'segformer_mit-b5_8xb2-160k_loveda-640x640.py'
+checkpoint_file = 'segformer.pth'
+# build the model from a config file and a checkpoint file
+model = init_model(config_file, checkpoint_file, device='cpu')
+if not torch.cuda.is_available():
+    model = revert_sync_batchnorm(model)
+
 @app.route('/get_inference', methods=['POST'])
 @login_required
 def get_inference():
     p_province  = request.json['province']
     p_district  = request.json['district']
     p_ward      = request.json['ward']
+    data = {
+        'province'  : p_province,
+        'district'  : p_district,
+        'ward'      : p_ward
+    }
     if ( p_province is not None or p_district is not None or ward is not None):
-        result = create_inference(p_province,p_district,p_ward)
-        response = jsonify({ 'message': result,'status': 200})
-        print({ 'message': result,'status': 200})
-        response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
-        return response
-               
-            
-# import torch
-# from mmengine.model.utils import revert_sync_batchnorm
-# from mmseg.apis import init_model, inference_model, show_result_pyplot
-# config_file = './configs/segformer/segformer_mit-b5_8xb2-160k_loveda-640x640.py'
-# checkpoint_file = '/mmsegmentation/data/segformer.pth'
-# # build the model from a config file and a checkpoint file
-# model = init_model(config_file, checkpoint_file, device='cuda')
+        try:
+            # data = {key: value for key, value in params.items()}
+            root, flag = check_dir_tree(["data","images",data["province"],data["district"],data["ward"]])
+            if flag:
+                save_dir,_ = check_dir_tree(["data","annotations",data["province"], data["district"],data["ward"]])
+                save_dir = save_dir.replace("\\","/")
 
+                for filename in os.listdir(root):
+                    image_path = os.path.join(root, filename).replace("\\","/")
 
-@app.route('/predict_data', methods=['POST'])
-def predict_data():
-    params = request.args.to_dict()
-    if params:
-        data = {key: value for key, value in params.items()}
-        root, flag = check_dir_tree(["data","images",data["province"],data["district"],data["ward"]])
-        root = root.replace("\\","\\\\")
-
-        for filename in os.listdir(root):
-            image_path = os.path.join(root, filename)
-
-            save_dir,_ = check_dir_tree(["data","annotations",data["province"], data["district"],data["ward"]])
-            save_dir = root.replace("\\","\\\\")
-            result = inference_model(model, image_path)
-            vis_iamge = show_result_pyplot(model, image_path, result, save_dir =save_dir,
-                                        opacity=1.0, show=False,  draw_gt=True, with_labels=False)
-            # vis_iamge = show_result_pyplot(model, image_path, result, save_dir ='data/results/',
-            #                             opacity=1.0, show=False,  draw_gt=True, with_labels=False)
-
-        return "abc"
-    return "done have model"
+                    result = inference_model(model, image_path)
+                    vis_iamge = show_result_pyplot(model, image_path, result, out_file=f"{save_dir}/{filename}",
+                                                opacity=1.0, show=False,  draw_gt=True, with_labels=False)
+                response = jsonify({ 'message': save_dir,'status': 200})
+                print({ 'message': save_dir,'status': 200})
+                response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+                response.headers.add('Access-Control-Allow-Credentials', 'true')
+                return response
+            else:
+                save_dir =  "No images to make label"
+                response = jsonify({ 'message': save_dir,'status': 200})
+                print({ 'message': save_dir,'status': 200})
+                response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+                response.headers.add('Access-Control-Allow-Credentials', 'true')
+                return response
+        except:
+            save_dir =  str(e)
+            response = jsonify({ 'message': save_dir,'status': 200})
+            print({ 'message': save_dir,'status': 200})
+            response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+            return response
+    save_dir =  "URL Invalid"
+    response = jsonify({ 'message': save_dir,'status': 200})
+    print({ 'message': save_dir,'status': 200})
+    response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
