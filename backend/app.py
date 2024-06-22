@@ -377,7 +377,7 @@ def download_img():
             response.headers.add('Access-Control-Allow-Credentials', 'true')
             return response
     except Exception as e:
-        save_dir = 'Error! Code: {c}, Message, {m}'.format(c = e.code, m = str(e))
+        save_dir = str(e)
         print({ 'message': save_dir,'status': 200})
         logger.error('data ===>>' + save_dir)
         response = jsonify({ 'area': None,'message':str(e),'status': e.code, 'image_url': ''})
@@ -455,7 +455,7 @@ def get_area():
             response.headers.add('Access-Control-Allow-Credentials', 'true')
             return response
     except Exception as e:
-        str_error = 'Error! Code: {c}, Message, {m}'.format(c = e.code, m = str(e))
+        str_error = str(e)
         print(str_error)
         logger.error('data ===>>' + str_error)
         response = jsonify({ 'area': None,'message':str(e),'status': e.code, 'image_url': ''})
@@ -519,7 +519,7 @@ def get_inference():
                 response.headers.add('Access-Control-Allow-Credentials', 'true')
                 return response
         except Exception as e:
-            save_dir = 'Error! Code: {c}, Message, {m}'.format(c = e.code, m = str(e))
+            save_dir =  str(e)
             print({ 'message': save_dir,'status': 200})
             logger.error('data ===>>' + save_dir)
             response = jsonify({ 'message': save_dir,'status': 200})
