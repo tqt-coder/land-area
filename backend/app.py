@@ -3,6 +3,7 @@ from flask_cors import CORS, cross_origin
 import mysql.connector
 import bcrypt
 import jwt
+import logging
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 from flask_mail import Mail, Message
@@ -22,6 +23,7 @@ import cv2
 import torch
 from mmengine.model.utils import revert_sync_batchnorm
 from mmseg.apis import init_model, inference_model, show_result_pyplot
+
 config_file = 'segformer_mit-b5_8xb2-160k_loveda-640x640.py'
 checkpoint_file = 'segformer.pth'
 # build the model from a config file and a checkpoint file
@@ -31,6 +33,10 @@ if not torch.cuda.is_available():
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -47,6 +53,7 @@ s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 # Enable CORS with specific origin and support credentials
 CORS(app, resources={r"/*": {"origins": os.getenv('FLASK_CORS_ORIGINS')}}, supports_credentials=True)
+
 def process_path(text: str):
     parts = text.split('/')
     if parts[-1] == "":
@@ -63,9 +70,9 @@ def createConnectDB():
             port=int(os.getenv('FLASK_DB_PORT')),
             database=os.getenv('FLASK_DB_NAME')
         )
-        print('================>> connected DB')
+        logger.info('Connected to DB')
     except Exception as e:
-        print(f"The error '{e}' occurred")
+        logger.error(f"The error '{e}' occurred")
     return connection
 
 def login_required(f):
@@ -75,7 +82,7 @@ def login_required(f):
         authorization = request.headers.get('Authorization')
         if authorization and authorization.startswith('Bearer '):
             token = authorization.split()[1]
-            print(token)
+            logger.info(f"Token received: {token}")
             if not token:
                 obj = {
                     'status': 403,
@@ -150,20 +157,6 @@ def getWardsByDistrictCode():
     response.headers.add('Access-Control-Allow-Credentials', 'true')
     return response
 
-# @app.route('/get_area', methods=['GET'])
-# @login_required
-# def get_area():
-#     ward_code = request.args.get('ward_code')
-#     connection = createConnectDB()
-#     cursor = connection.cursor()
-#     cursor.execute('SELECT land_area FROM landarea.wards WHERE code = %s', [ward_code])
-#     rows = cursor.fetchall()
-#     cursor.close()
-#     response = jsonify(rows)
-#     response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
-#     response.headers.add('Access-Control-Allow-Credentials', 'true')
-#     return response
-
 @app.route('/forgot', methods=['POST'])
 def forgot():
     email = request.json.get('email')
@@ -181,7 +174,7 @@ def forgot():
 
         mail.send(msg)
 
-        print('An email with a password reset link has been sent.', 'info')
+        logger.info('An email with a password reset link has been sent.')
         return jsonify({'status': 200, 'message': 'An email with a password reset link has been sent.','type': 'info'})
     else:
         return jsonify({'status': 400, 'message': 'Email address not provided.', 'type': 'error'})
@@ -203,11 +196,11 @@ def reset_with_token(token):
             hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
             cursor.execute('UPDATE users SET password = %s WHERE email = %s', (hashed_password, email))
             connection.commit()
-            print('Your password has been updated!', 'success')
+            logger.info('Your password has been updated!')
             str_url = os.getenv('FLASK_CORS_ORIGINS') + '/login'
             return redirect(str_url)
         except Exception as e:
-            print(f'Error updating password: {e}', 'error')
+            logger.error(f'Error updating password: {e}')
             return jsonify({'status': 500, 'message': 'Internal Server Error','type': 'error'})
         finally:
             cursor.close()
@@ -234,18 +227,20 @@ def login():
                 'exp': expiration_time
             }
             token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
-            response = make_response(jsonify({'status': 200, 'type': 'success','token': token}))
-            response.set_cookie('token', token, expires=expiration_time, httponly=True)
+            response = make_response(jsonify({'status': 200, 'message': 'Login Successful', 'type': 'info'}))
+            response.set_cookie('jwt', token, httponly=True, expires=expiration_time)
+            logger.info('Login successful')
             return response
         else:
-            print('Invalid email or password', 'error')
-            return jsonify({'status': 401, 'message': 'Invalid email or password','type': 'error'})
+            logger.warning('Login failed. Invalid credentials')
+            return jsonify({'status': 401, 'message': 'Invalid credentials', 'type': 'error'})
     except Exception as e:
-        print(f'Error logging in: {e}', 'error')
-        return jsonify({'status': 500, 'message': 'Internal Server Error','type': 'error'})
+        logger.error(f'Error during login: {e}')
+        return jsonify({'status': 500, 'message': 'Internal Server Error', 'type': 'error'})
     finally:
         cursor.close()
         connection.close()
+
 
 @app.route('/register', methods=['POST'])
 def register():
