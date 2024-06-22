@@ -351,6 +351,7 @@ def download_img():
             'lst_img': []
         }
         print('data',data)
+        logger.info('data ===>>' + data)
         if province is not None or district is not None or ward is not None:
             current_dir = os.getcwd()
             str_url = os.path.join(current_dir, 'data', 'images', province, district, ward)
@@ -365,6 +366,7 @@ def download_img():
                     run(idx=idx,bound=bound.bounds,data=data)
             response = jsonify({ 'message': str_url,'status': 200})
             print({ 'message': str_url,'status': 200})
+            logger.info('data ===>>' + { 'message': str_url,'status': 200})
             response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
             response.headers.add('Access-Control-Allow-Credentials', 'true')
             return response
@@ -375,7 +377,9 @@ def download_img():
             response.headers.add('Access-Control-Allow-Credentials', 'true')
             return response
     except Exception as e:
-        print('Error! Code: {c}, Message, {m}'.format(c = e.code, m = str(e)))
+        save_dir = 'Error! Code: {c}, Message, {m}'.format(c = e.code, m = str(e))
+        print({ 'message': save_dir,'status': 200})
+        logger.error('data ===>>' + save_dir)
         response = jsonify({ 'area': None,'message':str(e),'status': e.code, 'image_url': ''})
         response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
         response.headers.add('Access-Control-Allow-Credentials', 'true')
@@ -394,6 +398,7 @@ def get_area():
             'ward': ward,
             'lst_img': []
         }
+        logger.info('data ===>>' + data)
         print('data',data)
         if province is not None or district is not None or ward is not None:
             # data = {key: value for key, value in params.items()}
@@ -435,6 +440,7 @@ def get_area():
                     # response = jsonify({"img":big_images.tolist(), 'area': serializable_area,'status': 200, 'image_url': image_url})
                 response = jsonify({ 'area': serializable_area,'status': 200, 'image_url': image_url})
                 print({ 'area': serializable_area,'status': 200, 'image_url': image_url})
+                logger.info('data ===>>' + { 'area': serializable_area,'status': 200, 'image_url': image_url})
                 response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
                 response.headers.add('Access-Control-Allow-Credentials', 'true')
                 return response
@@ -449,7 +455,9 @@ def get_area():
             response.headers.add('Access-Control-Allow-Credentials', 'true')
             return response
     except Exception as e:
-        print('Error! Code: {c}, Message, {m}'.format(c = e.code, m = str(e)))
+        str_error = 'Error! Code: {c}, Message, {m}'.format(c = e.code, m = str(e))
+        print(str_error)
+        logger.error('data ===>>' + str_error)
         response = jsonify({ 'area': None,'message':str(e),'status': e.code, 'image_url': ''})
         response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
         response.headers.add('Access-Control-Allow-Credentials', 'true')
@@ -510,10 +518,11 @@ def get_inference():
                 response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
                 response.headers.add('Access-Control-Allow-Credentials', 'true')
                 return response
-        except:
-            save_dir =  str(e)
-            response = jsonify({ 'message': save_dir,'status': 200})
+        except Exception as e:
+            save_dir = 'Error! Code: {c}, Message, {m}'.format(c = e.code, m = str(e))
             print({ 'message': save_dir,'status': 200})
+            logger.error('data ===>>' + save_dir)
+            response = jsonify({ 'message': save_dir,'status': 200})
             response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
             response.headers.add('Access-Control-Allow-Credentials', 'true')
             return response
