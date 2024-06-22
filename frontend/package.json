@@ -1,6 +1,6 @@
 {
   "name": "black-dashboard-react",
-  "proxy": "http://52.231.138.94/",
+  "proxy": "http://127.0.0.1:5000/",
   "version": "1.2.2",
   "private": true,
   "dependencies": {
