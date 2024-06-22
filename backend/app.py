@@ -227,7 +227,7 @@ def login():
                 'exp': expiration_time
             }
             token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
-            response = make_response(jsonify({'status': 200, 'message': 'Login Successful', 'type': 'info'}))
+            response = make_response(jsonify({'status': 200, 'type': 'success','token': token}))
             response.set_cookie('jwt', token, httponly=True, expires=expiration_time)
             logger.info('Login successful')
             return response
