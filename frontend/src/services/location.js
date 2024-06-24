@@ -29,17 +29,22 @@ instance.interceptors.request.use(
 );
 
 const LocationService = {
-  downloadImage: async (_province, _district, _ward,navigate) => {
+  downloadImage: async (_province, _district, _ward, _ward_code, navigate) => {
     try {
       const response = await instance.post(`${baseURL}/download_img`, {
         province : _province,
         district : _district,
-        ward: _ward
+        ward: _ward,
+        wardCode: _ward_code
       });
       console.log(response)
-      if(response.data.status !== 200){
-        alert("Please login");
-        navigate("/login"); 
+      if(response.data.status === 500){
+        alert(response.data.message);
+      }else{
+        if(response.data.status !== 200){
+          alert("Please login");
+          navigate("/login"); 
+        }
       }
       console.log(response);
       return response.data; // Return the data from the response
@@ -50,18 +55,23 @@ const LocationService = {
       navigate("/admin/login");
     }
   },
-  inferenceImage: async (_province, _district, _ward,navigate) => {
+  inferenceImage: async (_province, _district, _ward, _ward_code,navigate) => {
     try {
       const response = await instance.post('/get_inference', {
         province : _province,
         district : _district,
-        ward: _ward
+        ward: _ward,
+        wardCode: _ward_code
       });
       console.log(response)
-      // if(response.data.status !== 200){
-      //   alert("Please login");
-      //   navigate("/login"); 
-      // }
+      if(response.data.status === 500){
+        alert(response.data.message);
+      }else{
+        if(response.data.status !== 200){
+          alert("Please login");
+          navigate("/login"); 
+        }
+      }
       console.log(response);
       return response.data; // Return the data from the response
     } catch (error) {

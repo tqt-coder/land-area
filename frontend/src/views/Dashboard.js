@@ -17,7 +17,7 @@ import { chartExample1, chartExample4 } from "variables/charts.js";
 
 import { PropagateLoader } from "react-spinners";
 
-function useChartData(_province, _district, _ward) {
+function useChartData(_province, _district, _ward, _ward_code) {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [imgUrl, setImgUrl] = useState([]);
@@ -29,7 +29,7 @@ function useChartData(_province, _district, _ward) {
       try {
         setLoading(true);
         const result = await DashBoardService.calcArea(
-          _province, _district, _ward,navigate
+          _province, _district, _ward,_ward_code, navigate
         );
         if (result && result.arr) {
           const areaSum = result.arr.reduce(
@@ -48,7 +48,7 @@ function useChartData(_province, _district, _ward) {
     };
 
     fetchData();
-  }, [_province, _district, _ward, navigate]);
+  }, [_province, _district, _ward, _ward_code, navigate]);
 
   return { data, totalArea, loading, imgUrl };
 }
@@ -62,19 +62,23 @@ function Dashboard() {
     queryParams.get("ward") || "Label"
   );
   const _ward = decodeURIComponent(
+    queryParams.get("ward_name")
+  );
+  const _ward_code = decodeURIComponent(
     queryParams.get("ward_code")
   );
   const _district = decodeURIComponent(
-    queryParams.get("district_code")
+    queryParams.get("district_name")
   );
   const _province = decodeURIComponent(
-    queryParams.get("city_code")
+    queryParams.get("city_name")
   );
 
   const { data, totalArea, loading, imgUrl } = useChartData(
     _province,
     _district,
-    _ward
+    _ward,
+    _ward_code
   );
 
   const handleBgChartData = (name) => setBigChartData(name);

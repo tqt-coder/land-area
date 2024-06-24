@@ -23,6 +23,7 @@ import cv2
 import torch
 from mmengine.model.utils import revert_sync_batchnorm
 from mmseg.apis import init_model, inference_model, show_result_pyplot
+import time
 
 config_file = 'segformer_mit-b5_8xb2-160k_loveda-640x640.py'
 checkpoint_file = 'segformer.pth'
@@ -336,193 +337,257 @@ def sub(image: np.ndarray,x1:int, y1:int, x2:int, y2:int)-> np.ndarray:
     resized_submatrix = np.resize(submatrix,(y1 - y2, x2 - x1))
     return resized_submatrix
 
-## Download Images
 @app.route("/download_img", methods=['POST'])
 @login_required
 def download_img():
     try:
-        province = request.json['province']
-        district = request.json['district']
-        ward = request.json['ward']
+        province       = request.json['province']
+        district       = request.json['district']
+        ward           = request.json['ward']
+        ward_code      = request.json['wardCode']
         data = {
             'province': province,
             'district': district,
             'ward': ward,
-            'lst_img': []
+            'lst_img': [1]
         }
-        print('data',data)
+        print('data', data)
+        connection = createConnectDB()
+        cursor = connection.cursor()
+        cursor.execute('SELECT ward_code, download_img_count, download_img_time FROM landarea.execution_time WHERE ward_code = %s', [ward_code])
+        rows = cursor.fetchone()
+
+        start_time = time.time()  # Record the start time
         if province is not None or district is not None or ward is not None:
             current_dir = os.getcwd()
             str_url = os.path.join(current_dir, 'data', 'images', province, district, ward)
             print(f'The constructed URL is: {str_url}')
             geo_series, G = get_custom_image(data=data)
-            if "lst_img" not in data or data["lst_img"]==[]:
-                save_npy(geo_series,G, data)
+            if "lst_img" not in data or data["lst_img"] == []:
+                save_npy(geo_series, G, data)
             for idx, bound in enumerate(geo_series):
                 try:
-                    run(idx=data['lst_img'][idx],bound=bound.bounds, data=data)
+                    run(idx=data['lst_img'][idx], bound=bound.bounds, data=data)
                 except:
-                    run(idx=idx,bound=bound.bounds,data=data)
-            response = jsonify({ 'message': str_url,'status': 200})
-            print({ 'message': str_url,'status': 200})
+                    run(idx=idx, bound=bound.bounds, data=data)
+            end_time = time.time()  # Record the end time
+            execution_time = end_time - start_time  # Calculate the difference
+            #  update time
+            if rows is None:
+                cursor.execute('INSERT INTO landarea.execution_time (ward_code, download_img_time, download_img_count) VALUES (%s, %s, %s)', (ward_code, execution_time, 1))
+            else:
+                r1 = 0 if rows[1] is None else rows[1]
+                r2 = 0 if rows[2] is None else rows[2]
+                index = r1 + 1
+                count_time = r2 + execution_time
+                cursor.execute('UPDATE landarea.execution_time SET download_img_time = %s, download_img_count = %s WHERE ward_code = %s', (count_time, index, ward_code))
+            connection.commit()
+            #  get total time:
+            cursor.execute('SELECT SUM(download_img_time) AS total_time, SUM(download_img_count) AS total_count FROM landarea.execution_time')
+            rows2 = cursor.fetchone()
+            avg_time = float(rows2[0]) / float(rows2[1])
+
+            response = jsonify({'message': str_url, 'status': 200, 'time': avg_time})
+            print({'message': str_url, 'status': 200, 'time': avg_time})
             response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
             response.headers.add('Access-Control-Allow-Credentials', 'true')
+            cursor.close()
             return response
         else:
-            response = jsonify({ 'message': '','status': 400})
-            print({ 'message': '','status': 400})
+            response = jsonify({'message': '', 'status': 400})
+            print({'message': '', 'status': 400})
             response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
             response.headers.add('Access-Control-Allow-Credentials', 'true')
+            cursor.close()
             return response
     except Exception as e:
-        print('Error! Code: {c}, Message, {m}'.format(c = e.code, m = str(e)))
-        response = jsonify({ 'area': None,'message':str(e),'status': e.code, 'image_url': ''})
+        print(str(e))
+        if 'cursor' in locals():
+            cursor.close()
+        response = jsonify({'area': None, 'message': str(e), 'status': 500, 'image_url': ''})
         response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
         response.headers.add('Access-Control-Allow-Credentials', 'true')
         return response
 
-@app.route('/get_area', methods=['POST','GET'])
+@app.route('/get_area', methods=['POST', 'GET'])
 @login_required
 def get_area():
     try:
+        start_time = time.time()  # Record the start time
         province = request.json['province']
         district = request.json['district']
         ward = request.json['ward']
+        ward_code = request.json['wardCode']
+        
+        connection = createConnectDB()
+        cursor = connection.cursor()
+        cursor.execute('SELECT ward_code, calc_area_count, calc_area_time FROM landarea.execution_time WHERE ward_code = %s', [ward_code])
+        rows = cursor.fetchone()
+
         data = {
             'province': province,
             'district': district,
             'ward': ward,
             'lst_img': []
         }
-        print('data',data)
         if province is not None or district is not None or ward is not None:
-            # data = {key: value for key, value in params.items()}
             mask = get_npy(data=data)
             big_images = merge_large_img(data=data)
-            # Change link img
             if isinstance(mask, np.ndarray) and isinstance(big_images, np.ndarray):
                 new_mask = np.rot90(mask, k=1)
                 if new_mask.shape == big_images.shape:
                     resized_mask = new_mask
                 else:
                     new_mask_shape = new_mask.shape
-                    # Resize new_mask to match big_images if dimensions differ
                     resized_big_images = cv2.resize(big_images, (new_mask_shape[1], new_mask_shape[0]))
 
-                resized_big_images[new_mask == False] = False 
+                resized_big_images[new_mask == False] = False
                 area = calculate_area(image=resized_big_images, mask=new_mask)
                 serializable_area = {int(k): v for k, v in area.items()}
 
-                    # Serialize the dictionary to JSON
-                    # json_data = json.dumps(serializable_area)
                 timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
                 filename = f'land_img_{timestamp}.jpg'
                 plt.imshow(resized_big_images)
                 plt.axis('off')
-    
-                    # Construct the file path for saving the image in the static/img directory
+
                 file_path = os.path.join('static', 'img', filename)
-
-                    # Save the displayed image
                 plt.savefig(file_path, bbox_inches='tight', pad_inches=0, transparent=True)
-
-                # Close the plot to release resources
                 plt.close()
+                image_url = url_for('static', filename='img/' + filename, _external=True)
 
-                    
-                image_url = url_for('static', filename='img/' + filename,_external=True)
+                end_time = time.time()  # Record the end time
+                execution_time = end_time - start_time  # Calculate the difference
 
-                    # response = jsonify({"img":big_images.tolist(), 'area': serializable_area,'status': 200, 'image_url': image_url})
-                response = jsonify({ 'area': serializable_area,'status': 200, 'image_url': image_url})
-                print({ 'area': serializable_area,'status': 200, 'image_url': image_url})
+                if rows is None:
+                    cursor.execute('INSERT INTO landarea.execution_time (ward_code, calc_area_time, calc_area_count) VALUES (%s, %s, %s)', (ward_code, execution_time, 1))
+                else:
+                    r1 = 0 if rows[1] is None else rows[1]
+                    r2 = 0 if rows[2] is None else rows[2]
+                    index = r1 + 1
+                    count_time = r2 + execution_time
+                    cursor.execute('UPDATE landarea.execution_time SET calc_area_time = %s, calc_area_count = %s WHERE ward_code = %s', (count_time, index, ward_code))
+                connection.commit()
+                cursor.execute('select sum(calc_area_time) as total_time, sum(calc_area_count) as total_count from execution_time')
+                rows2 = cursor.fetchone()
+                avg_time = float(rows2[0]) / float(rows2[1])
+
+                response = jsonify({'area': serializable_area, 'status': 200, 'image_url': image_url, 'time': avg_time})
                 response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
                 response.headers.add('Access-Control-Allow-Credentials', 'true')
+                cursor.close()
+                connection.close()
                 return response
             else:
-                response = jsonify({ 'area': None,'status': 400,'message':'Link does not exist'})
+                response = jsonify({'area': None, 'status': 400, 'message': 'Link does not exist'})
                 response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
                 response.headers.add('Access-Control-Allow-Credentials', 'true')
+                cursor.close()
+                connection.close()
                 return response
         else:
-            response = jsonify({ 'area': None,'status': 400,'message':'Link does not exist'})
+            response = jsonify({'area': None, 'status': 400, 'message': 'Link does not exist'})
             response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
             response.headers.add('Access-Control-Allow-Credentials', 'true')
             return response
     except Exception as e:
-        print('Error! Code: {c}, Message, {m}'.format(c = e.code, m = str(e)))
-        response = jsonify({ 'area': None,'message':str(e),'status': e.code, 'image_url': ''})
+        cursor.close()
+        connection.close()
+        response = jsonify({'area': None, 'message': str(e), 'status': 500, 'image_url': ''})
         response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
         response.headers.add('Access-Control-Allow-Credentials', 'true')
         return response
-
-
-# @app.route('/get_inference', methods=['POST'])
-# @login_required
-# def get_inference():
-#     p_province  = request.json['province']
-#     p_district  = request.json['district']
-#     p_ward      = request.json['ward']
-#     if ( p_province is not None or p_district is not None or ward is not None):
-#         result = create_inference(p_province,p_district,p_ward)
-#         response = jsonify({ 'message': result,'status': 200})
-#         print({ 'message': result,'status': 200})
-#         response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
-#         response.headers.add('Access-Control-Allow-Credentials', 'true')
-#         return response
-               
-            
-# import torch
+        
 
 @app.route('/get_inference', methods=['POST'])
 @login_required
 def get_inference():
-    p_province  = request.json['province']
-    p_district  = request.json['district']
-    p_ward      = request.json['ward']
-    data = {
-        'province'  : p_province,
-        'district'  : p_district,
-        'ward'      : p_ward
-    }
-    if ( p_province is not None or p_district is not None or p_ward is not None):
-        try:
-            # data = {key: value for key, value in params.items()}
-            root, flag = check_dir_tree(["data","images",data["province"],data["district"],data["ward"]])
-            if flag:
-                save_dir,_ = check_dir_tree(["data","annotations",data["province"], data["district"],data["ward"]])
-                save_dir = save_dir.replace("\\","/")
+    start_time = time.time()  # Record the start time
 
-                for filename in os.listdir(root):
-                    image_path = os.path.join(root, filename).replace("\\","/")
+    try:
+        p_province  = request.json['province']
+        p_district  = request.json['district']
+        p_ward      = request.json['ward']
+        ward_code = request.json['wardCode']
+        
+        connection = createConnectDB()
+        cursor = connection.cursor()
+        cursor.execute('SELECT ward_code, inference_count, inference_time FROM landarea.execution_time WHERE ward_code = %s', [ward_code])
+        rows = cursor.fetchone()
+        data = {
+            'province'  : p_province,
+            'district'  : p_district,
+            'ward'      : p_ward
+        }
+        
+        if p_province is None or p_district is None or p_ward is None:
+            raise ValueError("Invalid or missing location data")
 
-                    result = inference_model(model, image_path)
-                    vis_iamge = show_result_pyplot(model, image_path, result, out_file=f"{save_dir}/{filename}",
-                                                opacity=1.0, show=False,  draw_gt=True, with_labels=False)
-                response = jsonify({ 'message': save_dir,'status': 200})
-                print({ 'message': save_dir,'status': 200})
-                response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
-                response.headers.add('Access-Control-Allow-Credentials', 'true')
-                return response
+        root, flag = check_dir_tree(["data", "images", data["province"], data["district"], data["ward"]])
+        
+        if flag:
+            save_dir, _ = check_dir_tree(["data", "annotations", data["province"], data["district"], data["ward"]])
+            save_dir = save_dir.replace("\\", "/")
+
+            for filename in os.listdir(root):
+                image_path = os.path.join(root, filename).replace("\\", "/")
+
+                result = inference_model(model, image_path)
+                vis_image = show_result_pyplot(model, image_path, result, out_file=f"{save_dir}/{filename}",
+                                                opacity=1.0, show=False, draw_gt=True, with_labels=False)
+            end_time = time.time()  # Record the end time
+            execution_time = end_time - start_time  # Calculate the difference
+            if rows is None:
+                cursor.execute('INSERT INTO landarea.execution_time (ward_code, inference_time, inference_count) VALUES (%s, %s, %s)', (ward_code, execution_time, 1))
             else:
-                save_dir =  "No images to make label"
-                response = jsonify({ 'message': save_dir,'status': 200})
-                print({ 'message': save_dir,'status': 200})
-                response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
-                response.headers.add('Access-Control-Allow-Credentials', 'true')
-                return response
-        except:
-            save_dir =  str(e)
-            response = jsonify({ 'message': save_dir,'status': 200})
-            print({ 'message': save_dir,'status': 200})
+                r1 = 0 if rows[1] is None else rows[1]
+                r2 = 0 if rows[2] is None else rows[2]
+                index = r1 + 1
+                count_time = r2 + execution_time
+                cursor.execute('UPDATE landarea.execution_time SET inference_time = %s, inference_count = %s WHERE ward_code = %s', (count_time, index, ward_code))
+            connection.commit()
+            
+            cursor.execute('select sum(inference_time) as total_time, sum(inference_count) as total_count from execution_time')
+            rows2 = cursor.fetchone()
+            avg_time = float(rows2[0]) / float(rows2[1])
+
+            print({'message': save_dir, 'status': 200, 'time': avg_time})
+            response = jsonify({'message': save_dir, 'status': 200, 'time': execution_time, 'time': avg_time})
             response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
             response.headers.add('Access-Control-Allow-Credentials', 'true')
+            cursor.close()
+            connection.close()
             return response
-    save_dir =  "URL Invalid"
-    response = jsonify({ 'message': save_dir,'status': 200})
-    print({ 'message': save_dir,'status': 200})
-    response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
-    return response
+        else:
+            raise FileNotFoundError("No images to make labels")
+
+    except ValueError as ve:
+        logger.error(f"ValueError: {ve}")
+        response = jsonify({'message': str(ve), 'status': 400})
+        print({'message': str(ve), 'status': 400})
+        cursor.close()
+        connection.close()
+        response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
+    except FileNotFoundError as fnfe:
+        logger.error(f"FileNotFoundError: {fnfe}")
+        response = jsonify({'message': str(fnfe), 'status': 404})
+        print({'message': str(fnfe), 'status': 404})
+        cursor.close()
+        connection.close()
+        response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
+    except Exception as e:
+        logger.error(f"Exception: {e}")
+        response = jsonify({'message': str(e), 'status': 500})
+        print({'message': str(e), 'status': 500})
+        cursor.close()
+        connection.close()
+        response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
+        
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)

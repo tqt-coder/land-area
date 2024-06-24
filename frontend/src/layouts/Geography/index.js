@@ -11,6 +11,7 @@ const Geography = () => {
     const [cities, setCities] = useState([]);
     const [wards, setWards] = useState([]);
     const [responseText, setResponseText] = useState('');
+    const [timeText, setTimeText] = useState('');
     const [loading, setLoading] = useState(false); // Added loading state
     const navigate = useNavigate();
     const { control, setValue, watch, handleSubmit } = useForm({
@@ -99,9 +100,10 @@ const Geography = () => {
 
             const queryParams = new URLSearchParams();
             queryParams.set('ward', encodeURIComponent(selectedWard.full_name));
-            queryParams.set('ward_code', encodeURIComponent(selectedWard.name));
-            queryParams.set('district_code', encodeURIComponent(selectedDistrict.name));
-            queryParams.set('city_code', encodeURIComponent(selectedCity.name));
+            queryParams.set('ward_code', encodeURIComponent(selectedWard.code));
+            queryParams.set('ward_name', encodeURIComponent(selectedWard.name));
+            queryParams.set('district_name', encodeURIComponent(selectedDistrict.name));
+            queryParams.set('city_name', encodeURIComponent(selectedCity.name));
             
             // Navigate to dashboard with encoded parameters
             navigate(`/admin/dashboard?${queryParams.toString()}`);
@@ -123,10 +125,11 @@ const Geography = () => {
             const selectedWard = wards.find((item) => item.code === ward);
             const selectedDistrict = cities.find((item) => item.code === city);
             const selectedCity = provinces.find((item) => item.code === province);
-            const response = await LocationService.downloadImage(selectedCity.name, selectedDistrict.name, selectedWard.name, navigate);
+            const response = await LocationService.downloadImage(selectedCity.name, selectedDistrict.name, selectedWard.name, selectedWard.code, navigate);
 
             if (response.status === 200 && response.message) {
                 setResponseText(response.message);
+                setTimeText(response.time);
             } else {
                 setResponseText('Unexpected response format');
             }
@@ -149,9 +152,10 @@ const Geography = () => {
             const selectedWard = wards.find((item) => item.code === ward);
             const selectedDistrict = cities.find((item) => item.code === city);
             const selectedCity = provinces.find((item) => item.code === province);
-            const response = await LocationService.inferenceImage(selectedCity.name, selectedDistrict.name, selectedWard.name,navigate);
+            const response = await LocationService.inferenceImage(selectedCity.name, selectedDistrict.name, selectedWard.name,selectedWard.code,navigate);
             if (response.status === 200 &&  response.message) {
                 setResponseText(response.message);
+                setTimeText(response.time);
             } else {
                 setResponseText('Unexpected response format');
             }
@@ -342,6 +346,7 @@ const Geography = () => {
                             <hr style={{ backgroundColor: '#fff' }} />
                             <div className='response-text'>
                                 <h2 style={{ fontSize: '20px', textAlign: 'center', marginTop: '50px' }}>Link: {responseText}</h2>
+                                <h2 style={{ fontSize: '20px', textAlign: 'center', marginTop: '50px' }}>Time run: {timeText} seconds</h2>
                             </div>
                         </Col>
                     </Row>

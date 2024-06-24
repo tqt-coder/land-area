@@ -27,13 +27,14 @@ instance.interceptors.request.use(
 );
 
 const DashBoardService = {
-  calcArea: async (_province, _district, _ward, navigate) => {
+  calcArea: async (_province, _district, _ward, _ward_code, navigate) => {
     try {
       // Ensure the request is a POST request and pass the body correctly
       const response = await instance.post('/get_area', {
         province : _province,
         district : _district,
-        ward: _ward
+        ward: _ward,
+        wardCode: _ward_code
       });
       
       console.log(response);
