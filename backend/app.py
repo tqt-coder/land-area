@@ -10,10 +10,6 @@ from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from dotenv import load_dotenv
 import os
-from image_downloading import run, check_dir_tree
-from render_report import calculate_area, merging_row
-from Satellite_Image_Collector import get_custom_image, get_npy, save_npy, read_size, check_json
-# from inference import create_inference
 import json
 import numpy as np
 from PIL import Image
@@ -24,6 +20,11 @@ import torch
 from mmengine.model.utils import revert_sync_batchnorm
 from mmseg.apis import init_model, inference_model, show_result_pyplot
 import time
+from image_downloading import run, check_dir_tree
+from render_report import calculate_area
+from ultility import merge_large_img
+from Satellite_Image_Collector import get_custom_image, get_npy, save_npy, read_size, check_json
+# from inference import create_inference
 
 config_file = 'segformer_mit-b5_8xb2-160k_loveda-640x640.py'
 checkpoint_file = 'segformer.pth'
@@ -54,12 +55,6 @@ s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 # Enable CORS with specific origin and support credentials
 CORS(app, resources={r"/*": {"origins": os.getenv('FLASK_CORS_ORIGINS')}}, supports_credentials=True)
-
-def process_path(text: str):
-    parts = text.split('/')
-    if parts[-1] == "":
-        parts = parts[:-1]
-    return parts[-3], parts[-2], parts[-1]
 
 def createConnectDB():
     connection = None
@@ -278,64 +273,6 @@ def logout():
     response = make_response(jsonify({'status': 200, 'message': 'You have been logged out.', 'type': 'info'}))
     response.set_cookie('tooken', '', expires=0)  # Remove the cookie
     return response
-
-
-def merge_large_img(data: json = {}):
-    # Check tree
-    if data == {}:
-        root = "annotations"
-        flag = True
-    else:
-        anno_keys = ("province", "district", "ward")
-        if all(check_json(key, data) for key in anno_keys):
-            root,flag = check_dir_tree(dir_tree= ["data","annotations", data['province'], data["district"],data["ward"]])
-        else:
-            flag = True
-            root = data['annotations'].replace("\\","\\\\").replace("/","\\\\")
-            print(root)
-    try:
-        if flag:
-            size_path = root.replace("annotations","mask")
-            W, H = read_size(root=size_path)
-
-            index = []
-            for i in range(H,1, -1):
-                index.append([x for x in range(W*i-W, W*i)])
-            index.append(np.arange(W-1,-1,-1))
-            # index1=[i for i in range(56,64)]
-            # index2=[i for i in range(48,56)]
-            # index3=[i for i in range(40,48)]
-            # index4=[i for i in range(32,40)]
-            # index5=[i for i in range(24,32)]
-            # index6=[i for i in range(16,24)]
-            # index7=[i for i in range(8,16)]
-            # index8 = np.arange(7, -1, -1)
-            # index = [index1, index2, index3, index4, index5, index6, index7, index8]
-            big_images=merging_row(index[0], folder_path=root)
-            for i in index[1:]:
-                try:
-                    image=merging_row(i, folder_path=root)
-                    big_images = np.concatenate((big_images, image))
-                except:
-                    image=merging_row(i, folder_path=root, flag=False)
-                    big_images = np.concatenate((big_images, image))
-            return big_images
-        else:
-            return False
-    except:
-        return False
-
-def get_area_total(big_images,mask):
-    print(calculate_area(big_images, mask))
-    unique_values, counts = np.unique(mask, return_counts=True)
-    print(unique_values, counts)
-    total_sum = sum(calculate_area(big_images, mask).values())
-    return total_sum
-
-def sub(image: np.ndarray,x1:int, y1:int, x2:int, y2:int)-> np.ndarray:
-    submatrix = [row[x1:x2] for row in image[y2:y1]]
-    resized_submatrix = np.resize(submatrix,(y1 - y2, x2 - x1))
-    return resized_submatrix
 
 @app.route("/download_img", methods=['POST'])
 @login_required
