@@ -164,7 +164,6 @@ const Login = () => {
                 Sign Up
               </button>
             </div>
-            <img src="/assets/img/log.svg" className="image" alt="" />
           </div>
           <div className="panel right-panel">
             <div className="content">
@@ -174,7 +173,6 @@ const Login = () => {
                 Sign In
               </button>
             </div>
-            <img src="assets/img/register.svg" className="image" alt="" />
           </div>
         </div>
       </div>

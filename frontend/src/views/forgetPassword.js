@@ -75,7 +75,7 @@ const ForgotPassword = () => {
                 />
               </form>
             </div>
-            <img src="/assets/img/log.svg" className="image" alt="" />
+            <img src="" className="image" alt="" />
           </div>
         </div>
       </div>

@@ -102,7 +102,7 @@ function UserProfile() {
                     <img
                       alt="..."
                       className="avatar"
-                      src={require("assets/img/emilyz.jpg")}
+                      src=""
                     />
                     <h4 className="title">Lecturer</h4>
                   </a>
