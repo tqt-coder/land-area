@@ -154,3 +154,13 @@
   z-index: 10000;
   bottom: 0;
 }
+.side-bar-block{
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.side-bar-block img{
+  width: 90%;
+  margin: 20px 10px;
+}
