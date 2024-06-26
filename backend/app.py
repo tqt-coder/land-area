@@ -14,7 +14,6 @@ import json
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
-from werkzeug.datastructures import ImmutableMultiDict
 import cv2
 import torch
 from mmengine.model.utils import revert_sync_batchnorm
@@ -24,14 +23,6 @@ from image_downloading import run, check_dir_tree
 from render_report import calculate_area
 from ultility import merge_large_img
 from Satellite_Image_Collector import get_custom_image, get_npy, save_npy, read_size, check_json
-# from inference import create_inference
-
-config_file = 'segformer_mit-b5_8xb2-160k_loveda-640x640.py'
-checkpoint_file = 'segformer.pth'
-# build the model from a config file and a checkpoint file
-model = init_model(config_file, checkpoint_file, device='cpu')
-if not torch.cuda.is_available():
-    model = revert_sync_batchnorm(model)
 
 # Load environment variables from .env file
 load_dotenv()
@@ -40,9 +31,10 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Initialize Flask app
 app = Flask(__name__)
 
-# Configure Flask application from environment variables
+# Configure Flask app
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 app.config['MAIL_SERVER'] = os.getenv('FLASK_MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.getenv('FLASK_MAIL_PORT'))
@@ -50,13 +42,22 @@ app.config['MAIL_USE_TLS'] = os.getenv('FLASK_MAIL_USE_TLS') == 'True'
 app.config['MAIL_USERNAME'] = os.getenv('FLASK_MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('FLASK_MAIL_PASSWORD')
 
+# Initialize Flask-Mail
 mail = Mail(app)
 s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
-# Enable CORS with specific origin and support credentials
+# Enable CORS
 CORS(app, resources={r"/*": {"origins": os.getenv('FLASK_CORS_ORIGINS')}}, supports_credentials=True)
 
-def createConnectDB():
+# Initialize segmentation model
+config_file = 'segformer_mit-b5_8xb2-160k_loveda-640x640.py'
+checkpoint_file = 'segformer.pth'
+model = init_model(config_file, checkpoint_file, device='cpu')
+if not torch.cuda.is_available():
+    model = revert_sync_batchnorm(model)
+
+# Database connection function
+def create_connect_db():
     connection = None
     try:
         connection = mysql.connector.connect(
@@ -71,53 +72,34 @@ def createConnectDB():
         logger.error(f"The error '{e}' occurred")
     return connection
 
+# Authentication decorator
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        headers = dict(request.headers)  # Convert headers to a dictionary
         authorization = request.headers.get('Authorization')
         if authorization and authorization.startswith('Bearer '):
             token = authorization.split()[1]
             logger.info(f"Token received: {token}")
-            if not token:
-                obj = {
-                    'status': 403,
-                    'isSuccess': False,
-                    'type': 'error'
-                }
-                return jsonify(obj)
-            
             try:
                 payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
                 if 'email' not in payload:
                     raise jwt.InvalidTokenError('Invalid token')
-            except jwt.ExpiredSignatureError:
-                obj = {
-                    'status': 403,
-                    'isSuccess': False,
-                    'type': 'error'
-                }
-                return jsonify(obj)
-            except (jwt.InvalidTokenError, jwt.DecodeError):
-                obj = {
-                    'status': 403,
-                    'isSuccess': False,
-                    'type': 'error'
-                }
-                return jsonify(obj)
-            
+            except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, jwt.DecodeError):
+                return jsonify({'status': 403, 'isSuccess': False, 'type': 'error'})
             return f(*args, **kwargs)
+        return jsonify({'status': 403, 'isSuccess': False, 'type': 'error'})
     return decorated_function
 
 @app.route('/provinces', methods=['GET'])
 @login_required
-def getAllProvinces():
-    connection = createConnectDB()
+def get_all_provinces():
+    connection = create_connect_db()
     cursor = connection.cursor()
     cursor.execute('SELECT code, name, full_name FROM landarea.provinces;')
     rows = cursor.fetchall()
     result = [{'code': row[0], 'name': row[1], 'full_name': row[2]} for row in rows]
     cursor.close()
+    connection.close()
     response = jsonify(result)
     response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
     response.headers.add('Access-Control-Allow-Credentials', 'true')
@@ -125,14 +107,15 @@ def getAllProvinces():
 
 @app.route('/districts', methods=['GET'])
 @login_required
-def getDistrictsByProvinceCode():
+def get_districts_by_province_code():
     province_code = request.args.get('province_code')
-    connection = createConnectDB()
+    connection = create_connect_db()
     cursor = connection.cursor()
     cursor.execute('SELECT code, name, full_name, province_code FROM landarea.districts WHERE province_code = %s', [province_code])
     rows = cursor.fetchall()
     result = [{'code': row[0], 'name': row[1], 'full_name': row[2], 'province_code': row[3]} for row in rows]
     cursor.close()
+    connection.close()
     response = jsonify(result)
     response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
     response.headers.add('Access-Control-Allow-Credentials', 'true')
@@ -140,14 +123,15 @@ def getDistrictsByProvinceCode():
 
 @app.route('/wards', methods=['GET'])
 @login_required
-def getWardsByDistrictCode():
+def get_wards_by_district_code():
     district_code = request.args.get('district_code')
-    connection = createConnectDB()
+    connection = create_connect_db()
     cursor = connection.cursor()
     cursor.execute('SELECT code, name, full_name, district_code FROM landarea.wards WHERE district_code = %s', [district_code])
     rows = cursor.fetchall()
     result = [{'code': row[0], 'name': row[1], 'full_name': row[2], 'district_code': row[3]} for row in rows]
     cursor.close()
+    connection.close()
     response = jsonify(result)
     response.headers.add('Access-Control-Allow-Origin', os.getenv('FLASK_CORS_ORIGINS'))
     response.headers.add('Access-Control-Allow-Credentials', 'true')
@@ -156,80 +140,61 @@ def getWardsByDistrictCode():
 @app.route('/forgot', methods=['POST'])
 def forgot():
     email = request.json.get('email')
-
     if email:
         token = s.dumps(email, salt='email-confirm')
-
         msg = Message('Password Reset Request', sender=app.config['MAIL_USERNAME'], recipients=[email])
-
-        # HTML formatted email content with a clickable link
         link = url_for('reset_with_token', token=token, _external=True)
-        image_url = url_for('static', filename='img/logo_email.jpg',_external=True)
-
+        image_url = url_for('static', filename='img/logo_email.jpg', _external=True)
         msg.html = render_template('reset_email.html', name=email, link=link, img=image_url)
-
         mail.send(msg)
-
         logger.info('An email with a password reset link has been sent.')
-        return jsonify({'status': 200, 'message': 'An email with a password reset link has been sent.','type': 'info'})
-    else:
-        return jsonify({'status': 400, 'message': 'Email address not provided.', 'type': 'error'})
+        return jsonify({'status': 200, 'message': 'An email with a password reset link has been sent.', 'type': 'info'})
+    return jsonify({'status': 400, 'message': 'Email address not provided.', 'type': 'error'})
 
 @app.route('/reset/<token>', methods=['GET', 'POST'])
 def reset_with_token(token):
-    connection = createConnectDB()
-    cursor = connection.cursor()
-
     try:
         email = s.loads(token, salt='email-confirm', max_age=3600)
     except SignatureExpired:
         return '<h1>The token is expired!</h1>'
-
     if request.method == 'POST':
         new_password = request.form['password']
-
+        connection = create_connect_db()
+        cursor = connection.cursor()
         try:
             hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
             cursor.execute('UPDATE users SET password = %s WHERE email = %s', (hashed_password, email))
             connection.commit()
             logger.info('Your password has been updated!')
-            str_url = os.getenv('FLASK_CORS_ORIGINS') + '/login'
-            return redirect(str_url)
+            return redirect(url_for('login'))
         except Exception as e:
             logger.error(f'Error updating password: {e}')
-            return jsonify({'status': 500, 'message': 'Internal Server Error','type': 'error'})
+            return jsonify({'status': 500, 'message': 'Internal Server Error', 'type': 'error'})
         finally:
             cursor.close()
             connection.close()
-
     return render_template('reset_with_token.html')
 
 @app.route('/login', methods=['POST'])
 def login():
     email = request.json['email']
     password = request.json['password']
-    
-    connection = createConnectDB()
+    connection = create_connect_db()
     cursor = connection.cursor(dictionary=True)
-
     try:
         cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
         user = cursor.fetchone()
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             now = datetime.now(timezone.utc)
             expiration_time = now + timedelta(days=1)
-            payload = {
-                'email': email,
-                'exp': expiration_time
-            }
+            payload = {'email': email, 'exp': expiration_time}
             token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
-            response = make_response(jsonify({'status': 200, 'message': 'Login Successful', 'type': 'info','token': token}))
+            response = make_response(jsonify({'status': 200, 'message': 'Login Successful', 'type': 'info', 'token': token}))
             response.set_cookie('jwt', token, httponly=True, expires=expiration_time)
             logger.info('Login successful')
             return response
-        else:
-            logger.warning('Login failed. Invalid credentials')
-            return jsonify({'status': 401, 'message': 'Invalid credentials', 'type': 'error'})
+        logger.warning('Login failed. Invalid credentials')
+        return jsonify({'status': 401, 'message': 'Invalid credentials', 'type': 'error'})
     except Exception as e:
         logger.error(f'Error during login: {e}')
         return jsonify({'status': 500, 'message': 'Internal Server Error', 'type': 'error'})
@@ -237,31 +202,27 @@ def login():
         cursor.close()
         connection.close()
 
-
 @app.route('/register', methods=['POST'])
 def register():
     username = request.json['username']
     email = request.json['email']
     password = request.json['password']
-    
-    connection = createConnectDB()
+    connection = create_connect_db()
     cursor = connection.cursor()
-
     try:
         cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
         existing_user = cursor.fetchone()
         if existing_user:
-            flash('Email already exists', 'error')
-            return jsonify({'status': 401, 'message': 'Email already exists','type': 'error'})
-        else:
-            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-            cursor.execute('INSERT INTO users (username, email, password) VALUES (%s, %s, %s)', (username, email, hashed_password))
-            connection.commit()
-            session['email'] = email
-            return jsonify({'status': 200, 'message': 'Create account successfully','type': 'success'})
+            logger.warning('Email already exists')
+            return jsonify({'status': 409, 'message': 'Email already exists', 'type': 'error'})
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        cursor.execute('INSERT INTO users (username, email, password) VALUES (%s, %s, %s)', (username, email, hashed_password))
+        connection.commit()
+        logger.info('Registration successful')
+        return jsonify({'status': 200, 'message': 'Registration Successful', 'type': 'info'})
     except Exception as e:
-        print(f'Error registering user: {e}', 'error')
-        return {'status': 500, 'message': 'Internal Server Error','type': 'error'}
+        logger.error(f'Error during registration: {e}')
+        return jsonify({'status': 500, 'message': 'Internal Server Error', 'type': 'error'})
     finally:
         cursor.close()
         connection.close()
@@ -269,27 +230,25 @@ def register():
 @app.route('/logout')
 def logout():
     session.pop('email', None)
-    print('You have been logged out.', 'info')
     response = make_response(jsonify({'status': 200, 'message': 'You have been logged out.', 'type': 'info'}))
     response.set_cookie('tooken', '', expires=0)  # Remove the cookie
     return response
+
 
 @app.route("/download_img", methods=['POST'])
 @login_required
 def download_img():
     try:
-        province       = request.json['province']
-        district       = request.json['district']
-        ward           = request.json['ward']
-        ward_code      = request.json['wardCode']
-        data = {
-            'province': province,
-            'district': district,
-            'ward': ward,
-            'lst_img': [1]
-        }
-        print('data', data)
-        connection = createConnectDB()
+        data = request.json
+        province = data.get('province')
+        district = data.get('district')
+        ward = data.get('ward')
+        ward_code = data.get('wardCode')
+        if not province or not district or not ward:
+            return jsonify({'message': '', 'status': 400})
+
+        data.update({'lst_img': [1]})
+        connection = create_connect_db()
         cursor = connection.cursor()
         cursor.execute('SELECT ward_code, download_img_count, download_img_time FROM landarea.execution_time WHERE ward_code = %s', [ward_code])
         rows = cursor.fetchone()
@@ -356,7 +315,7 @@ def get_area():
         ward = request.json['ward']
         ward_code = request.json['wardCode']
         
-        connection = createConnectDB()
+        connection = create_connect_db()
         cursor = connection.cursor()
         cursor.execute('SELECT ward_code, calc_area_count, calc_area_time FROM landarea.execution_time WHERE ward_code = %s', [ward_code])
         rows = cursor.fetchone()
@@ -446,7 +405,7 @@ def get_inference():
         p_ward      = request.json['ward']
         ward_code = request.json['wardCode']
         
-        connection = createConnectDB()
+        connection = create_connect_db()
         cursor = connection.cursor()
         cursor.execute('SELECT ward_code, inference_count, inference_time FROM landarea.execution_time WHERE ward_code = %s', [ward_code])
         rows = cursor.fetchone()
