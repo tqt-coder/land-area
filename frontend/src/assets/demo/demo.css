@@ -172,3 +172,34 @@
   width: 90%;
   margin: 20px 10px;
 }
+.css-news{
+  margin: 10px 15px 0;
+  border-radius: 30px;
+  color: #ffffff;
+  display: block;
+  text-decoration: none;
+  position: relative;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 10px 8px;
+  line-height: 1.625rem;
+  outline: none;
+}
+
+.css-news:hover{
+  margin: 10px 15px 0;
+  border-radius: 30px;
+  color: #ffffff;
+}
+
+.css-news i {
+  font-size: 20px;
+  float: left;
+  margin-right: 12px;
+  line-height: 30px;
+  width: 34px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+  position: relative;
+}

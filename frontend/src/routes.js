@@ -11,7 +11,6 @@ import {default as Map } from 'views/Map.js';
 import TableList from 'views/TableList.js';
 import UserProfile from 'views/UserProfile.js';
 import Logout from 'views/logout';
-
 var routes = [
     {
         path: '/user-profile',
@@ -49,7 +48,7 @@ var routes = [
         path: '/logout',
         name: 'Logout',
         rtlName: 'إخطارات',
-        icon: 'tim-icons icon-bell-55',
+        icon: 'tim-icons icon-button-power',
         component: <Logout />,
         layout: '/admin',
     },

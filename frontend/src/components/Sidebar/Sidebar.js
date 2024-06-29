@@ -14,7 +14,8 @@ import {
   BackgroundColorContext,
   backgroundColors,
 } from "contexts/BackgroundColorContext";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSignOut } from "@fortawesome/free-solid-svg-icons";
 var ps;
 
 function Sidebar(props) {
@@ -124,6 +125,9 @@ function Sidebar(props) {
                 );
               })}
             </Nav>
+            <a href="https://baomoi.com/" target="_blank"  className="css-news">
+              <i className="tim-icons icon-bell-55"/> Tin tức
+            </a>
             <div class="side-bar-block">
               <img src={require("assets/img/hcmute.jpg")} alt="description" />
             </div>
