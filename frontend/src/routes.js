@@ -8,9 +8,10 @@
 */
 import Dashboard from 'views/Dashboard.js';
 import {default as Map } from 'views/Map.js';
-import TableList from 'views/TableList.js';
+// import TableList from 'views/TableList.js';
 import UserProfile from 'views/UserProfile.js';
 import Logout from 'views/logout';
+import NewsPage from 'views/NewsPage';
 var routes = [
     {
         path: '/user-profile',
@@ -28,14 +29,6 @@ var routes = [
         component: <Map />,
         layout: '/admin',
     },
-    // {
-    //     path: '/tables',
-    //     name: 'Library',
-    //     rtlName: 'قائمة الجدول',
-    //     icon: 'tim-icons icon-puzzle-10',
-    //     component: <TableList />,
-    //     layout: '/admin',
-    // },
     {
         path: '/dashboard',
         name: 'Dashboard',
@@ -50,6 +43,14 @@ var routes = [
         rtlName: 'إخطارات',
         icon: 'tim-icons icon-button-power',
         component: <Logout />,
+        layout: '/admin',
+    },
+    {
+        path: '/new-page',
+        name: 'News',
+        rtlName: 'قائمة الجدول',
+        icon: 'tim-icons icon-bell-55',
+        component: <NewsPage />,
         layout: '/admin',
     },
 ];

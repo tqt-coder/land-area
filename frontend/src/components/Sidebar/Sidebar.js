@@ -125,9 +125,6 @@ function Sidebar(props) {
                 );
               })}
             </Nav>
-            <a href="https://baomoi.com/" target="_blank"  className="css-news">
-              <i className="tim-icons icon-bell-55"/> News
-            </a>
             <div class="side-bar-block">
               <img src={require("assets/img/hcmute.jpg")} alt="description" />
             </div>
