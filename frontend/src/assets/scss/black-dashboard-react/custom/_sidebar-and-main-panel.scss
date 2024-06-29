@@ -314,7 +314,6 @@
     }
 
     .simple-text{
-      text-transform: uppercase;
       padding: $padding-base-vertical 0;
       display: block;
       white-space: nowrap;
@@ -324,6 +323,7 @@
       font-weight: $font-weight-normal;
       line-height: 30px;
       overflow: hidden;
+      font-size: 20px;
     }
   }
 
