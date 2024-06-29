@@ -23,15 +23,20 @@ function UserProfile() {
           <Col md="8">
             <Card>
               <CardHeader>
-                <h5 className="title">Group Hùng + Vinh</h5>
+                <h5 className="title-t">Thống kê tài nguyên đất bằng ảnh vệ tinh dùng kỹ thuật học sâu</h5>
               </CardHeader>
               <CardBody>
                 <Form>
+                <Row>
+                    <p></p>
+                    <Col className="px-md-1" md="3"></Col>
+                    <Col className="pl-md-1" md="4"></Col>
+                  </Row>
                   <Row>
                     <Col className="pr-md-1" md="5">
                       <FormGroup>
                         <label>
-                          School: <h3>HCMUTE</h3>
+                          School: <h4>HCMUTE</h4>
                         </label>
                       </FormGroup>
                     </Col>
@@ -42,7 +47,7 @@ function UserProfile() {
                     <Col className="pr-md-1" md="6">
                       <FormGroup>
                         <label>Student 1</label>
-                        <h3>Lê Nguyễn Hoàng Vinh</h3>
+                        <h4>Trần Việt Hùng</h4>
                       </FormGroup>
                     </Col>
                   </Row>
@@ -50,7 +55,7 @@ function UserProfile() {
                     <Col md="12">
                       <FormGroup>
                         <label>Student 2</label>
-                        <h3>Lê Nguyễn Hoàng Vinh</h3>
+                        <h4>Lê Nguyễn Hoàng Vinh</h4>
                       </FormGroup>
                     </Col>
                   </Row>
@@ -77,13 +82,6 @@ function UserProfile() {
                       <p></p>
                     </Col>
                   </Row>
-                  <Row>
-                    <Col md="8">
-                      <FormGroup>
-                        <p>This is final project</p>
-                      </FormGroup>
-                    </Col>
-                  </Row>
                 </Form>
               </CardBody>
               <CardFooter></CardFooter>
@@ -99,11 +97,11 @@ function UserProfile() {
                   <div className="block block-three" />
                   <div className="block block-four" />
                   <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                    <img
+                    {/* <img
                       alt="..."
                       className="avatar"
                       src=""
-                    />
+                    /> */}
                     <h4 className="title">Lecturer</h4>
                   </a>
                   <p className="description">Master</p>

@@ -121,8 +121,14 @@
   min-height: 40vh;
   max-height: 340px;
 }
-.offline-doc .page-header .title {
+.offline-doc .page-header .title{
   margin-bottom: 15px;
+
+}
+.title-t{
+  font-size: 28px;
+  text-transform: uppercase;
+  margin-bottom: 30px;
 }
 .offline-doc .page-header .title + h4 {
   margin-top: 10px;
@@ -155,9 +161,11 @@
   bottom: 0;
 }
 .side-bar-block{
-  margin-top: 40px;
+  margin-bottom: 15px;
   display: flex;
   flex-direction: column;
+  position: absolute;
+  bottom: 0;
 }
 
 .side-bar-block img{
