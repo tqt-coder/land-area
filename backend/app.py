@@ -247,7 +247,7 @@ def download_img():
         if not province or not district or not ward:
             return jsonify({'message': '', 'status': 400})
 
-        data.update({'lst_img': [1]})
+        data.update({'lst_img': []})
         connection = create_connect_db()
         cursor = connection.cursor()
         cursor.execute('SELECT ward_code, download_img_count, download_img_time FROM landarea.execution_time WHERE ward_code = %s', [ward_code])
@@ -324,7 +324,6 @@ def get_area():
             'province': province,
             'district': district,
             'ward': ward,
-            'lst_img': []
         }
         if province is not None or district is not None or ward is not None:
             mask = get_npy(data=data)
