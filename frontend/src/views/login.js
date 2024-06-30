@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login, register } from "../services/authService"; // Assuming you have a register service
-import { Helmet } from 'react-helmet';
-import Cookies from 'js-cookie';
+import { Helmet } from "react-helmet";
+import Cookies from "js-cookie";
 
 import "../assets/demo/login.css";
 
@@ -13,7 +13,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [category, setCategory] = useState("");
   const [isSignUpMode, setIsSignUpMode] = useState(false);
-  
+
   // Registration state variables
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
@@ -26,19 +26,19 @@ const Login = () => {
       // Registration form submission
       try {
         const response = await register(regEmail, regPassword, userName);
-        setCategory(response.type || "error")
+        setCategory(response.type || "error");
         setError(response.message || "Registration failed");
         if (response.status === 200) {
-            setIsSignUpMode(false);
+          setIsSignUpMode(false);
         } else {
-            setIsSignUpMode(true);
+          setIsSignUpMode(true);
         }
         setTimeout(() => {
           setError("");
         }, 2000);
-    } catch (error) {
+      } catch (error) {
         setError("Internal Server Error");
-        setCategory("error")
+        setCategory("error");
         // Clear error message after 10 seconds
         setTimeout(() => {
           setError("");
@@ -51,14 +51,14 @@ const Login = () => {
         if (response.status === 200) {
           // Save the token cookie in the browser
           const token = response.token;
-          Cookies.set('token', token, { expires: 1 }); // Set cookie to expire in 1 day
+          Cookies.set("token", token, { expires: 1 }); // Set cookie to expire in 1 day
           navigate("/admin/map");
         } else {
           if (response.status === 403) {
             setError(response.message || "Please login");
-            setCategory(response.type || "error")
+            setCategory(response.type || "error");
           } else {
-            setCategory(response.type || "error")
+            setCategory(response.type || "error");
             setError(response.message || "Invalid email or password");
           }
           // Clear error message after 2 seconds
@@ -68,7 +68,7 @@ const Login = () => {
         }
       } catch (error) {
         setError("Internal Server Error");
-        setCategory("error")
+        setCategory("error");
         // Clear error message after 1 second
         setTimeout(() => {
           setError("");
@@ -85,15 +85,20 @@ const Login = () => {
   return (
     <>
       <Helmet>
-        <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
+        <script
+          src="https://kit.fontawesome.com/64d58efce2.js"
+          crossorigin="anonymous"
+        ></script>
       </Helmet>
       <div className={`container ${isSignUpMode ? "sign-up-mode" : ""}`}>
-        {error && <p className={`alert alert-${category}` }>{error}</p>}
+        {error && <p className={`alert alert-${category}`}>{error}</p>}
         <div className="forms-container">
           <div className="signin-signup">
             <form
               id={isSignUpMode ? "register-form" : "login-form"}
-              className={`${isSignUpMode ? "sign-up-form" : "sign-in-form"} form-css`}
+              className={`${
+                isSignUpMode ? "sign-up-form" : "sign-in-form"
+              } form-css`}
               onSubmit={handleSubmit}
             >
               <h2 className="title">{isSignUpMode ? "Sign Up" : "Sign In"}</h2>
@@ -115,7 +120,11 @@ const Login = () => {
                   type="email"
                   placeholder="Email"
                   value={isSignUpMode ? regEmail : email}
-                  onChange={(e) => isSignUpMode ? setRegEmail(e.target.value) : setEmail(e.target.value)}
+                  onChange={(e) =>
+                    isSignUpMode
+                      ? setRegEmail(e.target.value)
+                      : setEmail(e.target.value)
+                  }
                   required
                 />
               </div>
@@ -125,7 +134,11 @@ const Login = () => {
                   type="password"
                   placeholder="Password"
                   value={isSignUpMode ? regPassword : password}
-                  onChange={(e) => isSignUpMode ? setRegPassword(e.target.value) : setPassword(e.target.value)}
+                  onChange={(e) =>
+                    isSignUpMode
+                      ? setRegPassword(e.target.value)
+                      : setPassword(e.target.value)
+                  }
                   required
                 />
               </div>
@@ -135,22 +148,24 @@ const Login = () => {
                 className="btn btn-danger"
               />
               {!isSignUpMode && (
-                <Link to="/admin/forgot" className="forgot-password-link">Forgot Password?</Link>
+                <Link to="/admin/forgot" className="forgot-password-link">
+                  Forgot Password?
+                </Link>
               )}
               <p className="social-text">Or Sign in with social platforms</p>
               <div className="social-media">
-                <a href="#" className="social-icon">
+                <Link to="/admin/login" className="social-icon">
                   <i className="fab fa-facebook-f"></i>
-                </a>
-                <a href="#" className="social-icon">
+                </Link>
+                <Link to="/admin/login" className="social-icon">
                   <i className="fab fa-twitter"></i>
-                </a>
-                <a href="#" className="social-icon">
+                </Link>
+                <Link to="/admin/login" className="social-icon">
                   <i className="fab fa-google"></i>
-                </a>
-                <a href="#" className="social-icon">
+                </Link>
+                <Link to="/admin/login" className="social-icon">
                   <i className="fab fa-linkedin-in"></i>
-                </a>
+                </Link>
               </div>
             </form>
           </div>
@@ -160,7 +175,11 @@ const Login = () => {
             <div className="content">
               <h3>Create an account</h3>
               <p></p>
-              <button className="btn btn-dark" id="sign-up-btn" onClick={toggleMode}>
+              <button
+                className="btn btn-dark"
+                id="sign-up-btn"
+                onClick={toggleMode}
+              >
                 Sign Up
               </button>
             </div>
@@ -169,7 +188,11 @@ const Login = () => {
             <div className="content">
               <h3>Already have an account?</h3>
               <p></p>
-              <button className="btn btn-dark" id="sign-in-btn" onClick={toggleMode}>
+              <button
+                className="btn btn-dark"
+                id="sign-in-btn"
+                onClick={toggleMode}
+              >
                 Sign In
               </button>
             </div>
