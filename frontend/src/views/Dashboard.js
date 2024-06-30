@@ -13,7 +13,7 @@ import {
 } from "reactstrap";
 import DashBoardService from "../services/dashboardService";
 import { useNavigate, useLocation } from "react-router-dom";
-import { chartExample1, chartExample4 } from "variables/charts.js";
+import { chartExample4 } from "variables/charts.js";
 
 import { PropagateLoader } from "react-spinners";
 

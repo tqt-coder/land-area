@@ -336,7 +336,7 @@ def get_area():
             mask = get_npy(data=data)
             big_images = merge_large_img(data=data)
             if isinstance(mask, np.ndarray) and isinstance(big_images, np.ndarray):
-                new_mask = np.rot90(mask, k=1)
+                new_mask = np.transpose(mask)
                 if new_mask.shape == big_images.shape:
                     resized_mask = new_mask
                 else:
