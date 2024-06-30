@@ -64,7 +64,7 @@ const Login = () => {
           // Clear error message after 2 seconds
           setTimeout(() => {
             setError("");
-          }, 2000);
+          }, 4000);
         }
       } catch (error) {
         setError("Internal Server Error");
@@ -72,7 +72,7 @@ const Login = () => {
         // Clear error message after 1 second
         setTimeout(() => {
           setError("");
-        }, 1000);
+        }, 3000);
       }
     }
   };

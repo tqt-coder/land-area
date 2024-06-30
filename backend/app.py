@@ -179,9 +179,12 @@ def reset_with_token(token):
 def login():
     email = request.json['email']
     password = request.json['password']
-    connection = create_connect_db()
-    cursor = connection.cursor(dictionary=True)
     try:
+        connection = create_connect_db()
+        if connection is None:
+            raise ValueError("Database in Docker do not run !!!! Please check Docker")
+
+        cursor = connection.cursor(dictionary=True)
         cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
         user = cursor.fetchone()
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
@@ -192,15 +195,19 @@ def login():
             response = make_response(jsonify({'status': 200, 'message': 'Login Successful', 'type': 'info', 'token': token}))
             response.set_cookie('jwt', token, httponly=True, expires=expiration_time)
             logger.info('Login successful')
+            cursor.close()
+            connection.close()
             return response
+
         logger.warning('Login failed. Invalid credentials')
         return jsonify({'status': 401, 'message': 'Invalid credentials', 'type': 'error'})
+    except ValueError as ve:
+        logger.error(f'Error during login: {ve}')
+        return jsonify({'status': 500, 'message': str(ve), 'type': 'error'})
     except Exception as e:
         logger.error(f'Error during login: {e}')
-        return jsonify({'status': 500, 'message': 'Internal Server Error', 'type': 'error'})
-    finally:
-        cursor.close()
-        connection.close()
+        return jsonify({'status': 500, 'message': 'An internal server error occurred', 'type': 'error'})
+
 
 @app.route('/register', methods=['POST'])
 def register():
