@@ -126,6 +126,7 @@ function Sidebar(props) {
               })}
             </Nav>
             <div class="side-bar-block">
+              <img src={require("assets/img/it_logo.jpg")} alt="description" />
               <img src={require("assets/img/hcmute.jpg")} alt="description" />
             </div>
           </div>
