@@ -166,7 +166,8 @@ def reset_with_token(token):
             cursor.execute('UPDATE users SET password = %s WHERE email = %s', (hashed_password, email))
             connection.commit()
             logger.info('Your password has been updated!')
-            return redirect(url_for('login'))
+            str_url = os.getenv('FLASK_CORS_ORIGINS') + '/login'
+            return redirect(str_url)
         except Exception as e:
             logger.error(f'Error updating password: {e}')
             return jsonify({'status': 500, 'message': 'Internal Server Error', 'type': 'error'})
