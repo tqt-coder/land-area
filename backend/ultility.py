@@ -2,7 +2,7 @@ from render_report import calculate_area, merging_row
 import json
 import numpy as np
 from Satellite_Image_Collector import get_custom_image, get_npy, save_npy, read_size, check_json
-from render_report import calculate_area
+# from render_report import calculate_area
 from image_downloading import run, check_dir_tree
 
 def merge_large_img(data: json = {}):
